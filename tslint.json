@@ -1,0 +1,20 @@
+{
+  "extends": ["tslint:recommended", "tslint-react", "tslint-config-airbnb"],
+  "linterOptions": {
+    "exclude": [
+      "config/**/*.js",
+      "node_modules/**/*.ts",
+      "coverage/lcov-report/*.js"
+    ]
+  },
+  "rules": {
+    "max-line-length": {
+      "options": [120]
+   },
+   "object-literal-sort-keys": [true,"shorthand-first"],
+   "jsx-no-multiline-js": false
+  },
+  "jsRules": {
+    "indent":["error", 2]
+  }
+}
