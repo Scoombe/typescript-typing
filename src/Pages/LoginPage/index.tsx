@@ -29,6 +29,7 @@ class LoginPage extends React.Component <IProps, IState> {
       error: '',
     };
     this.signUp = false;
+    this.loggedIn = this.loggedIn.bind(this);
     this.onSignup = this.onSignup.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
     this.signinCallback = this.signinCallback.bind(this);
@@ -42,7 +43,7 @@ class LoginPage extends React.Component <IProps, IState> {
     const errorHeader = `${buttonText} error!`;
     return (
       <div>
-        <Header page={'/todos'} loggedIn={this.loggedIn}/>
+        <Header page={'/login'} loggedIn={this.loggedIn}/>
         <Grid centered={true}>
           <Grid.Row />
           <Grid.Column computer={4} mobile={14}>
@@ -54,6 +55,7 @@ class LoginPage extends React.Component <IProps, IState> {
                   content={error}
                 />
               )}
+               {this.signUp && <Form.Field control={Input} label="Username" name="username" placeholder="Username" />}
               <Form.Field control={Input} label="Email" name="email" placeholder="Email" />
               <Form.Field
                 control={Input}
@@ -87,11 +89,18 @@ class LoginPage extends React.Component <IProps, IState> {
     }
   }
 
-  private onSubmit(event: IFormSubmit<HTMLFormElement>): void {
+  private onSubmit(event: React.FormEvent<HTMLFormElement>): void {
     if (this.signUp) {
-      createUser(event.target.email.value.trim(), event.target.password.value.trim(), this.createUserCallback);
+      createUser(
+        {
+          email: event.currentTarget.email.value.trim(),
+          password: event.currentTarget.password.value.trim(),
+          username: event.currentTarget.username.value.trim(),
+        },
+        this.createUserCallback,
+      );
     } else {
-      signIn(event.target.email.value.trim(), event.target.password.value.trim(), this.signinCallback);
+      signIn(event.currentTarget.email.value.trim(), event.currentTarget.password.value.trim(), this.signinCallback);
     }
   }
 

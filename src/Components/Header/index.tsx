@@ -37,9 +37,9 @@ class TypingHeader extends React.Component <IProps, IState> {
     this.fireBaseListener();
   }
   public render() {
-    const { userName } = this.state;
-    const loggedInHeading = userName !== null ? `hello ${userName}` : 'Log in!';
-    const loggedInSubHeading = userName !== null ? 'Logout!' : 'Login to save your scores ';
+    const { loggedIn, userName } = this.state;
+    const loggedInHeading = loggedIn !== null ? `hello ${userName}` : 'Log in!';
+    const loggedInSubHeading = loggedIn !== null ? 'Logout!' : 'Login to save your scores ';
     return (
       <div className="typingHeader">
         <Grid columns={3}>
@@ -81,7 +81,7 @@ class TypingHeader extends React.Component <IProps, IState> {
   private navigatePage(e: any) {
     const page = e.currentTarget.dataset.page;
     const { history } = this.props;
-    history.push(`/${page}`);
+    history.push(`${page}`);
   }
 
   private headerAuthListener(): void {

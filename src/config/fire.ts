@@ -8,12 +8,10 @@ import 'firebase/database';
 // import { FirebaseDatabase } from '@firebase/database-types';
 
 const config = {
-  apiKey: 'AIzaSyAgBMI0r5KJeOO7sPNNXu2XzmWZf5HNEnQ',
-  authDomain: 'connected-todo.firebaseapp.com',
-  databaseURL: 'https://connected-todo.firebaseio.com',
-  messagingSenderId: '563277454077',
-  projectId: 'connected-todo',
-  storageBucket: 'connected-todo.appspot.com',
+  apiKey: 'AIzaSyARJv5DXqYcoOFb0_r8WG9PrQ-uCX98zyE',
+  authDomain: 'react-typing.firebaseapp.com',
+  databaseURL: 'https://react-typing.firebaseio.com',
+  projectId: 'react-typing',
 };
 
 const fire: firebase.app.App = firebase.initializeApp(config);
