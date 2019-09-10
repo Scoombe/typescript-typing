@@ -1,5 +1,5 @@
 import { firebaseAuth as auth, firebaseDB as database } from '../config/fire';
-import { IUserNameObj } from './definitions';
+import { IScoreObj, IUserNameObj } from './definitions';
 
 type ICallbackType = (error: {error: boolean, message: string}) => void;
 type IUserNameCallBack = (userName: IUserNameObj) => void;
@@ -43,6 +43,16 @@ export function getUsername(callback: IUserNameCallBack): void {
           username: snapshot.val().username,
         });
       }
+    });
+  }
+}
+
+export function createScore(score: IScoreObj) {
+  if (auth.currentUser !== null) {
+    database.ref('scores').push({
+      WPM: score.WPM,
+      averageWPM: score.averageWPM,
+      userId: auth.currentUser.uid,
     });
   }
 }

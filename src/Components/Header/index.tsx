@@ -27,6 +27,7 @@ class TypingHeader extends React.Component <IProps, IState> {
     this.navigatePage = this.navigatePage.bind(this);
     this.headerAuthListener = this.headerAuthListener.bind(this);
     this.fireBaseListener = this.onTokenChanged();
+    this.updateUserName = this.updateUserName.bind(this);
   }
 
   public componentDidMount() {
