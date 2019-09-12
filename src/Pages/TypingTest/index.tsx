@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Grid, Message } from 'semantic-ui-react';
-import { wordsPerMinTest } from 'wpmtest/src/wordsPerMinTest';
+import { wordsPerMinTest } from 'wpmtest';
 import Header from '../../Components/Header';
 import { createScore } from '../../Core/firebase-functions';
 import Finish from './Components/Finish';
@@ -14,18 +14,19 @@ interface IState {
 }
 
 class TypingTest extends React.Component<{}, IState> {
-  private wordsTest: wordsPerMinTest ;
+  public wordsTest: wordsPerMinTest ;
   constructor(props: {}) {
     super(props);
+    this.finishedFunc = this.finishedFunc.bind(this);
     this.wordsTest = new wordsPerMinTest(this.finishedFunc, 0.5);
     this.checkKey = this.checkKey.bind(this);
     this.getDisplayText = this.getDisplayText.bind(this);
     this.getStats = this.getStats.bind(this);
-    this.finishedFunc = this.finishedFunc.bind(this);
     this.loggedIn = this.loggedIn.bind(this);
     this.restartTest = this.restartTest.bind(this);
     this.renderFinish = this.renderFinish.bind(this);
     this.renderTest = this.renderTest.bind(this);
+    this.startStopWatch = this.startStopWatch.bind(this);
     this.state = {
       error: '',
       finished: false,
@@ -70,6 +71,8 @@ class TypingTest extends React.Component<{}, IState> {
   }
 
   private finishedFunc() {
+     // tslint:disable-next-line: no-console
+    console.log(this.wordsTest);
     const { wordCount, averageWPM, minutes } = this.wordsTest;
     const score = {
       WPM: wordCount / minutes,

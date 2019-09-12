@@ -19,7 +19,6 @@ class Test extends React.Component <IProps, IState> {
     this.countdown = this.countdown.bind(this);
     this.onInputChange = this.onInputChange.bind(this);
     this.setDisplayText = this.setDisplayText.bind(this);
-
     this.state = {
       displayString: getDisplayText(),
     };
