@@ -1,16 +1,18 @@
 import * as React from 'react';
-import { Grid, Message } from 'semantic-ui-react';
+import { Button, Grid, Message } from 'semantic-ui-react';
 import { wordsPerMinTest } from 'wpmtest';
 import Header from '../../Components/Header';
 import { createScore } from '../../Core/firebase-functions';
 import Finish from './Components/Finish';
 import Test from './Components/Test';
+import './TypingTest.css';
 
 interface IState {
   finished: boolean;
   error: string;
   message: string;
   loggedIn: boolean;
+  started: boolean;
 }
 
 class TypingTest extends React.Component<{}, IState> {
@@ -27,11 +29,13 @@ class TypingTest extends React.Component<{}, IState> {
     this.renderFinish = this.renderFinish.bind(this);
     this.renderTest = this.renderTest.bind(this);
     this.startStopWatch = this.startStopWatch.bind(this);
+    this.startTest = this.startTest.bind(this);
     this.state = {
       error: '',
       finished: false,
       loggedIn: false,
       message: '',
+      started: false,
     };
   }
 
@@ -40,28 +44,34 @@ class TypingTest extends React.Component<{}, IState> {
   }
 
   public render() {
-    const { finished, error, message } = this.state;
+    const { finished, error, message, started } = this.state;
     return (
       <Grid>
-        <Header loggedIn={this.loggedIn} page="/" />
-        <Grid.Column width={3} />
-        <Grid.Column width={9}>
-          {finished ? (this.renderFinish()) : (this.renderTest())}
-          { error
+        <Grid.Column width={16}>
+          <Header loggedIn={this.loggedIn} page="/" />
+        </Grid.Column>
+        <Grid.Row centered={true}>
+          <Grid.Column width={3} />
+          <Grid.Column width={9}>
+            {finished && (this.renderFinish())}
+            {started && !finished && (this.renderTest())}
+            {!finished && !started && (this.renderButton())}
+            { error
+              && (
+                <Message negative={true}>
+                  <Message.Header> Score update failed </Message.Header>
+                  <p>{error}</p>
+                </Message>
+              )}
+            { message
             && (
-              <Message negative={true}>
-                <Message.Header> Score update failed </Message.Header>
-                <p>{error}</p>
+              <Message>
+                <p>{message}</p>
               </Message>
             )}
-          { message
-          && (
-            <Message>
-              <p>{message}</p>
-            </Message>
-          )}
-        </Grid.Column>
-        <Grid.Column width={3} />
+          </Grid.Column>
+          <Grid.Column width={3} />
+        </Grid.Row>
       </Grid>
     );
   }
@@ -172,6 +182,20 @@ class TypingTest extends React.Component<{}, IState> {
         averageWPM={averageWPM}
       />
     );
+  }
+  private renderButton(): JSX.Element {
+    return(
+      <Grid.Row centered={true}>
+        <Grid.Column width={3}>
+          <Button onClick={this.startTest}>
+            Start
+          </Button>
+        </Grid.Column>
+      </Grid.Row>
+    );
+  }
+  private startTest(): void {
+    this.setState({ started: true });
   }
 }
 
