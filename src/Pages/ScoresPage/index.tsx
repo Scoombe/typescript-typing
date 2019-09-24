@@ -32,7 +32,6 @@ class ScoresPage extends React.Component<{}, IState> {
           <TypingHeader page="scores" loggedIn={this.loggedIn}/>
         </Grid.Column>
         <Grid.Row centered={true}>
-          <Grid.Column width="3"/>
           <Grid.Column width="4">
             <Header as="h2" icon={true} textAlign="center">
               <Icon name="user" circular={true} />
@@ -82,7 +81,7 @@ class ScoresPage extends React.Component<{}, IState> {
     const sortedScores: IScoreObj[] =  Object.keys(scores).map((key: string) => {
       return scores[key];
     });
-    sortedScores.sort(sortObj('-WPM'));
+    sortedScores.sort(sortObj('WPM'));
     const sortedScoreElements: JSX.Element[] = [];
     let firstScore = true;
     for (const score of sortedScores) {
