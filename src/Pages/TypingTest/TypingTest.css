@@ -21,7 +21,7 @@
     font-size: 1.7rem;
 }
 
-button {
+button.retry {
     padding: 0.5rem 2rem;
     margin-top: 1rem;
     background-color: #fbbd08;

@@ -3,6 +3,7 @@ import { IScoreObj, IUserNameObj } from './definitions';
 
 type ICallbackType = (error: {error: boolean, message: string}) => void;
 type IUserNameCallBack = (userName: IUserNameObj) => void;
+type IScoreCallback = (score: IScoreObj) => void;
 // auth functions
 
 export function createUser(userDetails: { email: string, password: string, username: string },
@@ -53,6 +54,18 @@ export function createScore(score: IScoreObj) {
       WPM: score.WPM,
       averageWPM: score.averageWPM,
       userId: auth.currentUser.uid,
+    });
+  }
+}
+
+export function getUserScores(callback: IScoreCallback) {
+  if (auth.currentUser) {
+    database.ref('scores').orderByChild('userId')
+    .on('child_added', (snapshot) => {
+      if (snapshot.key) {
+        const score: IScoreObj = snapshot.val();
+        score.key = snapshot.key;
+      }
     });
   }
 }

@@ -81,8 +81,6 @@ class TypingTest extends React.Component<{}, IState> {
   }
 
   private finishedFunc() {
-     // tslint:disable-next-line: no-console
-    console.log(this.wordsTest);
     const { wordCount, averageWPM, minutes } = this.wordsTest;
     const score = {
       WPM: wordCount / minutes,
