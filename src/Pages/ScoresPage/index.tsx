@@ -97,7 +97,7 @@ class ScoresPage extends React.Component<{}, IState> {
     return(
       <List.Item key={score.key}>
       <List.Content>
-        <List.Header>{score.userName}  {first && <Icon name="trophy" color="yellow" />}</List.Header>
+       {first && <Icon name="trophy" color="yellow" />}
         WPM: {score.WPM}  <br />
         Average WPM: {score.averageWPM}
       </List.Content>
