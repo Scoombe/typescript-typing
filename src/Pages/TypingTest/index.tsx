@@ -51,11 +51,17 @@ class TypingTest extends React.Component<{}, IState> {
           <TypingHeader loggedIn={this.loggedIn} page="/" />
         </Grid.Column>
         <Grid.Row centered={true}>
+          {!finished && !started && (
+            <Grid.Column width={10}>
+              {this.renderButton()}
+            </Grid.Column>
+          )}
+        </Grid.Row>
+        <Grid.Row>
           <Grid.Column width={3} />
           <Grid.Column width={9}>
             {finished && (this.renderFinish())}
             {started && !finished && (this.renderTest())}
-            {!finished && !started && (this.renderButton())}
             { error
               && (
                 <Message negative={true}>

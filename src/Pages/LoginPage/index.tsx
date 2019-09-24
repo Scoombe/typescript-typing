@@ -43,7 +43,7 @@ class LoginPage extends React.Component <IProps, IState> {
     const errorHeader = `${buttonText} error!`;
     return (
       <div>
-        <TypingHeader page={'/login'} loggedIn={this.loggedIn}/>
+        <TypingHeader page={'/'} loggedIn={this.loggedIn}/>
         <Grid centered={true}>
           <Grid.Row />
           <Grid.Column computer={4} mobile={14}>

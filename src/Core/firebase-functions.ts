@@ -5,7 +5,6 @@ type ICallbackType = (error: {error: boolean, message: string}) => void;
 type IUserNameCallBack = (userName: IUserNameObj) => void;
 type IScoreCallback = (score: IScoreObj) => void;
 // auth functions
-
 export function createUser(userDetails: { email: string, password: string, username: string },
                            callback: ICallbackType): void {
   auth.createUserWithEmailAndPassword(userDetails.email, userDetails.password).then(() => {
@@ -57,7 +56,7 @@ export function createScore(score: IScoreObj) {
     });
   }
 }
-// tslint:disable: no-console
+
 export function getUserScores(callback: IScoreCallback) {
   if (auth.currentUser) {
     database.ref('scores').orderByChild('userId').equalTo(auth.currentUser.uid)

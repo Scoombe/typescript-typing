@@ -28,6 +28,7 @@ class TypingHeader extends React.Component <IProps, IState> {
     this.headerAuthListener = this.headerAuthListener.bind(this);
     this.fireBaseListener = this.onTokenChanged();
     this.updateUserName = this.updateUserName.bind(this);
+    this.logOut = this.logOut.bind(this);
   }
 
   public componentDidMount() {
@@ -39,8 +40,8 @@ class TypingHeader extends React.Component <IProps, IState> {
   }
   public render() {
     const { loggedIn, userName } = this.state;
-    const loggedInHeading = loggedIn !== null ? `hello ${userName}` : 'Log in!';
-    const loggedInSubHeading = loggedIn !== null ? 'Logout!' : 'Login to save your scores ';
+    const loggedInHeading = loggedIn !==  false ? `hello ${userName}` : 'Log in!';
+    const loggedInSubHeading = loggedIn !== false ? 'Logout!' : 'Login to save your scores ';
     return (
       <div className="typingHeader">
         <Grid columns={3}>
@@ -54,7 +55,7 @@ class TypingHeader extends React.Component <IProps, IState> {
                 </Header>
               </Segment>
             </Grid.Column>
-            <Grid.Column data-page="/login" onClick={this.navigatePage}>
+            <Grid.Column data-page="/login" onClick={this.logOut}>
               <Segment inverted={true} color="blue">
                 <Header as="h2" icon={true}>
                   <Icon name="user" />
@@ -92,12 +93,15 @@ class TypingHeader extends React.Component <IProps, IState> {
   private onTokenChanged(): firebase.Unsubscribe {
     const auth =  Auth.onIdTokenChanged((user: any) => {
       const { history, page, loggedIn } = this.props;
-      if (user !== null) {
+      if (user !== null && this.state.loggedIn === false) {
         loggedIn();
         getUsername(this.updateUserName);
         this.setState({ loggedIn: true });
+        this.fireBaseListener();
+        // tslint:disable: no-console
+        console.log(page);
         history.push(`${page}`);
-      } else if (user === null) {
+      } else if (user === null && this.state.loggedIn === false) {
         this.setState({ loggedIn: false });
         history.push('/login');
       }
@@ -112,7 +116,8 @@ class TypingHeader extends React.Component <IProps, IState> {
   private logOut(e: any) {
     const { history } = this.props;
     signOut();
-    history.push('/');
+    this.setState({ loggedIn: false });
+    history.push('/login');
   }
 }
 
