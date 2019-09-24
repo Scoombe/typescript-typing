@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { RouteComponentProps } from 'react-router';
 import { Button, Form, Grid, Input, Message } from 'semantic-ui-react';
-import Header from '../../Components/Header';
+import TypingHeader from '../../Components/TypingHeader';
 import { createUser, signIn } from '../../Core/firebase-functions';
 
 interface IState  {
@@ -43,7 +43,7 @@ class LoginPage extends React.Component <IProps, IState> {
     const errorHeader = `${buttonText} error!`;
     return (
       <div>
-        <Header page={'/login'} loggedIn={this.loggedIn}/>
+        <TypingHeader page={'/login'} loggedIn={this.loggedIn}/>
         <Grid centered={true}>
           <Grid.Row />
           <Grid.Column computer={4} mobile={14}>

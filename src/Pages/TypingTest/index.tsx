@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Button, Grid, Message } from 'semantic-ui-react';
 import { wordsPerMinTest } from 'wpmtest';
-import Header from '../../Components/Header';
+import TypingHeader from '../../Components/TypingHeader';
 import { createScore } from '../../Core/firebase-functions';
 import Finish from './Components/Finish';
 import Test from './Components/Test';
@@ -48,7 +48,7 @@ class TypingTest extends React.Component<{}, IState> {
     return (
       <Grid>
         <Grid.Column width={16}>
-          <Header loggedIn={this.loggedIn} page="/" />
+          <TypingHeader loggedIn={this.loggedIn} page="/" />
         </Grid.Column>
         <Grid.Row centered={true}>
           <Grid.Column width={3} />

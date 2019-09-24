@@ -57,14 +57,15 @@ export function createScore(score: IScoreObj) {
     });
   }
 }
-
+// tslint:disable: no-console
 export function getUserScores(callback: IScoreCallback) {
   if (auth.currentUser) {
-    database.ref('scores').orderByChild('userId')
+    database.ref('scores').orderByChild('userId').equalTo(auth.currentUser.uid)
     .on('child_added', (snapshot) => {
       if (snapshot.key) {
         const score: IScoreObj = snapshot.val();
         score.key = snapshot.key;
+        callback(score);
       }
     });
   }
