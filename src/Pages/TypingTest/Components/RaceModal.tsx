@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Button, Form, Input, Message, Modal } from 'semantic-ui-react';
 import { IRaceObj } from '../../../Core/definitions';
+import { createRace } from '../../../Core/firebase-functions';
 
 interface IProps {
   closeModal: () => void;
@@ -25,6 +26,9 @@ const emptyRace: IRaceObj = {
 class RaceModal extends React.Component <IProps, IState> {
   constructor(props: IProps) {
     super(props);
+    this.createRace = this.createRace.bind(this);
+    this.titleChange = this.titleChange.bind(this);
+    this.scriptChange = this.scriptChange.bind(this);
     this.state = {
       modalRace: Object.create(emptyRace),
       titleError: '',
@@ -63,7 +67,7 @@ class RaceModal extends React.Component <IProps, IState> {
               </label>
               <Input
                 placeholder="Race script"
-                onChange={this.wordsChange}
+                onChange={this.scriptChange}
                 value={modalRace.script}
               />
             </Form.Field>
@@ -79,6 +83,25 @@ class RaceModal extends React.Component <IProps, IState> {
         </Modal.Actions>
       </Modal>
     );
+  }
+  private titleChange(e: {target: {value: string}}) {
+    const { modalRace } = this.state;
+    modalRace.title = e.target.value;
+    this.setState({ modalRace });
+  }
+
+  private scriptChange(e: {target: {value: string}}) {
+    const { modalRace } = this.state;
+    modalRace.script = e.target.value;
+    this.setState({ modalRace });
+  }
+
+  private createRace() {
+    const { closeModal } = this.props;
+    const { modalRace } = this.state;
+    createRace(modalRace);
+    this.setState({ modalRace: Object.create(emptyRace) });
+    closeModal();
   }
 }
 
