@@ -12,3 +12,16 @@ export interface IUserNameObj {
   userId: string;
   username: string;
 }
+
+export interface IRaceObj {
+  key: string;
+  scores: {
+    [key: string]: IScoreObj;
+  };
+  script: string;
+  stars: {
+    [key: string]: {userId: string};
+  };
+  title: string;
+  userId: string;
+}

@@ -192,7 +192,10 @@ class TypingTest extends React.Component<{}, IState> {
       <Grid.Row centered={true}>
         <Grid.Column width={3}>
           <Button onClick={this.startTest}>
-            Start New Random Race
+            Start New Typing Test
+          </Button>
+          <Button onClick={this.startTest}>
+            Create new race
           </Button>
         </Grid.Column>
       </Grid.Row>
