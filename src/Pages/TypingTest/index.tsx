@@ -4,6 +4,7 @@ import { wordsPerMinTest } from 'wpmtest';
 import TypingHeader from '../../Components/TypingHeader';
 import { createScore } from '../../Core/firebase-functions';
 import Finish from './Components/Finish';
+import RaceModal from './Components/RaceModal';
 import Test from './Components/Test';
 import './TypingTest.css';
 
@@ -12,6 +13,7 @@ interface IState {
   error: string;
   message: string;
   loggedIn: boolean;
+  raceModalOpen: boolean;
   started: boolean;
 }
 
@@ -22,9 +24,11 @@ class TypingTest extends React.Component<{}, IState> {
     this.finishedFunc = this.finishedFunc.bind(this);
     this.wordsTest = new wordsPerMinTest(this.finishedFunc, 0.5);
     this.checkKey = this.checkKey.bind(this);
+    this.closeModal = this.closeModal.bind(this);
     this.getDisplayText = this.getDisplayText.bind(this);
     this.getStats = this.getStats.bind(this);
     this.loggedIn = this.loggedIn.bind(this);
+    this.openModal = this.openModal.bind(this);
     this.restartTest = this.restartTest.bind(this);
     this.renderFinish = this.renderFinish.bind(this);
     this.renderTest = this.renderTest.bind(this);
@@ -35,6 +39,7 @@ class TypingTest extends React.Component<{}, IState> {
       finished: false,
       loggedIn: false,
       message: '',
+      raceModalOpen: false,
       started: false,
     };
   }
@@ -44,7 +49,7 @@ class TypingTest extends React.Component<{}, IState> {
   }
 
   public render() {
-    const { finished, error, message, started } = this.state;
+    const { finished, error, message, raceModalOpen, started } = this.state;
     return (
       <Grid>
         <Grid.Column width={16}>
@@ -78,6 +83,7 @@ class TypingTest extends React.Component<{}, IState> {
           </Grid.Column>
           <Grid.Column width={3} />
         </Grid.Row>
+        <RaceModal modalOpen={raceModalOpen} closeModal={this.closeModal}/>
       </Grid>
     );
   }
@@ -194,7 +200,7 @@ class TypingTest extends React.Component<{}, IState> {
           <Button onClick={this.startTest}>
             Start New Typing Test
           </Button>
-          <Button onClick={this.startTest}>
+          <Button onClick={this.openModal}>
             Create new race
           </Button>
         </Grid.Column>
@@ -203,6 +209,12 @@ class TypingTest extends React.Component<{}, IState> {
   }
   private startTest(): void {
     this.setState({ started: true });
+  }
+  private openModal() {
+    this.setState({ raceModalOpen: true });
+  }
+  private closeModal() {
+    this.setState({ raceModalOpen: false });
   }
 }
 

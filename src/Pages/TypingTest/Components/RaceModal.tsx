@@ -94,14 +94,21 @@ class RaceModal extends React.Component <IProps, IState> {
     const { modalRace } = this.state;
     modalRace.script = e.target.value;
     this.setState({ modalRace });
+    this.validateForm();
   }
 
   private createRace() {
     const { closeModal } = this.props;
     const { modalRace } = this.state;
-    createRace(modalRace);
-    this.setState({ modalRace: Object.create(emptyRace) });
-    closeModal();
+    if (this.validateForm) {
+      createRace(modalRace);
+      this.setState({ modalRace: Object.create(emptyRace) });
+      closeModal();
+    }
+  }
+
+  private validateForm(): boolean {
+    return false;
   }
 }
 

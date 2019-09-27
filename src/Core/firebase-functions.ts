@@ -1,5 +1,5 @@
 import { firebaseAuth as auth, firebaseDB as database } from '../config/fire';
-import { IScoreObj, IUserNameObj, IRaceObj } from './definitions';
+import { IRaceObj,  IScoreObj, IUserNameObj } from './definitions';
 
 type ICallbackType = (error: {error: boolean, message: string}) => void;
 type IUserNameCallBack = (userName: IUserNameObj) => void;
