@@ -27,6 +27,7 @@ const emptyRace: IRaceObj = {
 class RaceModal extends React.Component <IProps, IState> {
   constructor(props: IProps) {
     super(props);
+    this.closeModal = this.closeModal.bind(this);
     this.createRace = this.createRace.bind(this);
     this.titleChange = this.titleChange.bind(this);
     this.scriptChange = this.scriptChange.bind(this);
@@ -38,8 +39,8 @@ class RaceModal extends React.Component <IProps, IState> {
     };
   }
   public render() {
-    const { closeModal, modalOpen } = this.props;
-    const { titleError, modalRace } = this.state;
+    const { modalOpen } = this.props;
+    const { titleError, modalRace, scriptError } = this.state;
     return(
       <Modal open={modalOpen}>
         <Modal.Header>
@@ -48,12 +49,12 @@ class RaceModal extends React.Component <IProps, IState> {
         <Modal.Content>
           <Form>
             <Form.Field>
-              {titleError !== '' && <Message negative={true}>
-                {titleError}
-              </Message>}
               <label>
                 Race title
               </label>
+              {titleError !== '' && <Message negative={true}>
+                {titleError}
+              </Message>}
               <Input
                 placeholder="Race Title"
                 onChange={this.titleChange}
@@ -61,12 +62,12 @@ class RaceModal extends React.Component <IProps, IState> {
               />
             </Form.Field>
             <Form.Field>
-              {titleError !== '' && <Message negative={true}>
-                {titleError}
-              </Message>}
               <label>
                 Race script
               </label>
+              {scriptError !== '' && <Message negative={true}>
+                {scriptError}
+              </Message>}
               <Input
                 placeholder="Race script"
                 onChange={this.scriptChange}
@@ -79,7 +80,7 @@ class RaceModal extends React.Component <IProps, IState> {
           <Button onClick={this.createRace}>
             Create Race
           </Button>
-          <Button negative={true} onClick={closeModal}>
+          <Button negative={true} onClick={this.closeModal}>
             Close
           </Button>
         </Modal.Actions>
@@ -89,15 +90,15 @@ class RaceModal extends React.Component <IProps, IState> {
   private titleChange(e: {target: {value: string}}) {
     const { modalRace } = this.state;
     modalRace.title = e.target.value;
-    this.validateForm();
     this.setState({ modalRace });
+    this.validateForm();
   }
 
   private scriptChange(e: {target: {value: string}}) {
     const { modalRace } = this.state;
     modalRace.script = e.target.value;
-    this.validateForm();
     this.setState({ modalRace });
+    this.validateForm();
   }
 
   private createRace() {
@@ -110,21 +111,27 @@ class RaceModal extends React.Component <IProps, IState> {
     }
   }
 
+  private closeModal() {
+    const { closeModal } = this.props;
+    this.setState({ modalRace: Object.create(emptyRace) });
+    closeModal();
+  }
+
   private validateForm(): boolean {
     const { modalRace } = this.state;
     let { scriptError, titleError } = this.state;
     let error: boolean = false;
+    if (modalRace.title.length > 0 && modalRace.title.length < 100) {
+      titleError = '';
+    } else {
+      titleError = 'Title can\'t be empty and under 100 chars';
+      error = false;
+    }
     if (modalRace.script.length > 20 && modalRace.script.length < 300) {
+      scriptError = '';
+    } else {
       scriptError = 'Script must be over 20 chars and be under 300 chars';
       error = false;
-    } else {
-      scriptError = '';
-    }
-    if (modalRace.title.length > 20 && modalRace.title.length < 300) {
-      titleError = 'Script must be over 20 chars and be under 300 chars';
-      error = false;
-    } else {
-      titleError = '';
     }
     this.setState({ scriptError, titleError });
     return error;
