@@ -1,5 +1,6 @@
 export interface IScoreObj {
   averageWPM: number;
+  createdOn: number;
   key: string;
   userName: string;
   userId: string;
@@ -14,6 +15,7 @@ export interface IUserNameObj {
 }
 
 export interface IRaceObj {
+  createdOn: number;
   key: string;
   scores: {
     [key: string]: IScoreObj;

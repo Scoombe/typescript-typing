@@ -4,6 +4,7 @@ import { IRaceObj,  IScoreObj, IUserNameObj } from './definitions';
 type ICallbackType = (error: {error: boolean, message: string}) => void;
 type IUserNameCallBack = (userName: IUserNameObj) => void;
 type IScoreCallback = (score: IScoreObj) => void;
+type IRaceCallback = (race: IRaceObj) => void;
 // auth functions
 export function createUser(userDetails: { email: string, password: string, username: string },
                            callback: ICallbackType): void {
@@ -52,6 +53,7 @@ export function createScore(score: IScoreObj) {
     database.ref('scores').push({
       WPM: score.WPM,
       averageWPM: score.averageWPM,
+      createOn: { '.sv': 'timestamp' },
       userId: auth.currentUser.uid,
     });
   }
@@ -73,11 +75,38 @@ export function getUserScores(callback: IScoreCallback) {
 export function createRace(race: IRaceObj) {
   if (auth.currentUser !== null) {
     database.ref('races').push({
+      createOn: { '.sv': 'timestamp' },
       scores: race.scores,
       script: race.script,
       stars: race.stars,
       title: race.title,
       userId: auth.currentUser.uid,
+    });
+  }
+}
+
+export function getUserRaces(callback: IRaceCallback) {
+  if (auth.currentUser !== null) {
+    database.ref('races').orderByChild('userId').equalTo(auth.currentUser.uid)
+    .on('child_added', (snapshot) => {
+      if (snapshot.key) {
+        const race: IRaceObj = snapshot.val();
+        race.key = snapshot.key;
+        callback(race);
+      }
+    });
+  }
+}
+
+export function getRaces(callback: IRaceCallback) {
+  if (auth.currentUser !== null) {
+    database.ref('races').orderByChild('userId').equalTo(auth.currentUser.uid)
+    .on('child_added', (snapshot) => {
+      if (snapshot.key) {
+        const race: IRaceObj = snapshot.val();
+        race.key = snapshot.key;
+        callback(race);
+      }
     });
   }
 }

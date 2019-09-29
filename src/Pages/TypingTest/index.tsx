@@ -97,6 +97,7 @@ class TypingTest extends React.Component<{}, IState> {
     const score = {
       WPM: wordCount / minutes,
       averageWPM: +averageWPM.toFixed(2),
+      createdOn: 0,
       key: '',
       userId: '',
       userName: '',

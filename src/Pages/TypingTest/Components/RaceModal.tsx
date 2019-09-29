@@ -10,11 +10,12 @@ interface IProps {
 
 interface IState {
   modalRace: IRaceObj;
+  scriptError: string;
   titleError: string;
-  wordsError: string;
 }
 
 const emptyRace: IRaceObj = {
+  createdOn: 0,
   key: '',
   scores: {},
   script: '',
@@ -29,10 +30,11 @@ class RaceModal extends React.Component <IProps, IState> {
     this.createRace = this.createRace.bind(this);
     this.titleChange = this.titleChange.bind(this);
     this.scriptChange = this.scriptChange.bind(this);
+    this.validateForm = this.validateForm.bind(this);
     this.state = {
       modalRace: Object.create(emptyRace),
+      scriptError: '',
       titleError: '',
-      wordsError: '',
     };
   }
   public render() {
@@ -87,14 +89,15 @@ class RaceModal extends React.Component <IProps, IState> {
   private titleChange(e: {target: {value: string}}) {
     const { modalRace } = this.state;
     modalRace.title = e.target.value;
+    this.validateForm();
     this.setState({ modalRace });
   }
 
   private scriptChange(e: {target: {value: string}}) {
     const { modalRace } = this.state;
     modalRace.script = e.target.value;
-    this.setState({ modalRace });
     this.validateForm();
+    this.setState({ modalRace });
   }
 
   private createRace() {
@@ -108,7 +111,23 @@ class RaceModal extends React.Component <IProps, IState> {
   }
 
   private validateForm(): boolean {
-    return false;
+    const { modalRace } = this.state;
+    let { scriptError, titleError } = this.state;
+    let error: boolean = false;
+    if (modalRace.script.length > 20 && modalRace.script.length < 300) {
+      scriptError = 'Script must be over 20 chars and be under 300 chars';
+      error = false;
+    } else {
+      scriptError = '';
+    }
+    if (modalRace.title.length > 20 && modalRace.title.length < 300) {
+      titleError = 'Script must be over 20 chars and be under 300 chars';
+      error = false;
+    } else {
+      titleError = '';
+    }
+    this.setState({ scriptError, titleError });
+    return error;
   }
 }
 
