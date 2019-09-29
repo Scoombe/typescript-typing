@@ -1,5 +1,5 @@
 import { firebaseAuth as auth, firebaseDB as database } from '../config/fire';
-import { IRaceObj,  IScoreObj, IUserNameObj } from './definitions';
+import { IRaceObj, IRaceScoreObj, IRaceStarObj, IScoreObj, IUserNameObj } from './definitions';
 
 type ICallbackType = (error: {error: boolean, message: string}) => void;
 type IUserNameCallBack = (userName: IUserNameObj) => void;
@@ -76,10 +76,29 @@ export function createRace(race: IRaceObj) {
   if (auth.currentUser !== null) {
     database.ref('races').push({
       createOn: { '.sv': 'timestamp' },
-      scores: race.scores,
       script: race.script,
-      stars: race.stars,
       title: race.title,
+      userId: auth.currentUser.uid,
+    });
+  }
+}
+
+export function createRaceScore(score: IRaceScoreObj) {
+  if (auth.currentUser !== null) {
+    database.ref('raceScores').push({
+      WPM: score.WPM,
+      averageWPM: score.averageWPM,
+      createOn: { '.sv': 'timestamp' },
+      raceId: score.raceId,
+      userId: auth.currentUser.uid,
+    });
+  }
+}
+
+export function createRaceStar(star: IRaceStarObj) {
+  if (auth.currentUser !== null) {
+    database.ref('raceScores').push({
+      raceId: star.raceId,
       userId: auth.currentUser.uid,
     });
   }

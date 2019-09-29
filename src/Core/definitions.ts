@@ -5,7 +5,6 @@ export interface IScoreObj {
   userName: string;
   userId: string;
   WPM: number;
-
 }
 
 export interface IUserNameObj {
@@ -25,5 +24,20 @@ export interface IRaceObj {
     [key: string]: {userId: string};
   };
   title: string;
+  userId: string;
+}
+
+export interface IRaceScoreObj {
+  averageWPM: number;
+  createdOn: number;
+  key: string;
+  raceId: string;
+  userName: string;
+  userId: string;
+  WPM: number;
+}
+
+export interface IRaceStarObj {
+  raceId: string;
   userId: string;
 }
