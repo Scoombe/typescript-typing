@@ -129,3 +129,13 @@ export function getRaces(callback: IRaceCallback) {
     });
   }
 }
+
+export function getRace(callback: IRaceCallback, raceId: string) {
+  database.ref(`races/${raceId}`).on('child_added', (snapshot) => {
+    if (snapshot.key) {
+      const race: IRaceObj = snapshot.val();
+      race.key = snapshot.key;
+      callback(race);
+    }
+  });
+}

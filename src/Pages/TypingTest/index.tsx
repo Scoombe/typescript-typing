@@ -110,7 +110,9 @@ class TypingTest extends React.Component<ReactRouter.RouteComponentProps, IState
 
   private raceClick(raceKey: string) {
     const { history } = this.props;
-    history.push(`/races/${raceKey}`);
+    // tslint:disable-next-line: no-console
+    console.log(raceKey);
+    history.push({ pathname: '/races', search: `?race=${raceKey}` });
   }
 
   private finishedFunc() {
