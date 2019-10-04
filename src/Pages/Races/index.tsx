@@ -15,7 +15,7 @@ class Races extends React.Component <ReactRouter.RouteComponentProps, IState> {
     super(props);
     this.loggedIn = this.loggedIn.bind(this);
     this.raceCallback = this.raceCallback.bind(this);
-    const raceId =  new URLSearchParams(props.location.search).get('name');
+    const raceId =  new URLSearchParams(props.location.search).get('race');
     this.state = {
       race: {
         createdOn: 0,
@@ -35,12 +35,11 @@ class Races extends React.Component <ReactRouter.RouteComponentProps, IState> {
       <Grid>
         <Grid.Row>
           <Grid.Column>
-            <TypingHeader page={`races/${raceId}`} loggedIn={this.loggedIn} />
+            <TypingHeader page={`/races/?race=${raceId}`} loggedIn={this.loggedIn} />
           </Grid.Column>
         </Grid.Row>
         <Grid.Row centered={true} columns={2}>
           <Grid.Column>
-            {raceId}
             <Header>{race.title}</Header>
           </Grid.Column>
         </Grid.Row>

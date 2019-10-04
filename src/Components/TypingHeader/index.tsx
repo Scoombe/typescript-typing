@@ -98,8 +98,6 @@ class TypingHeader extends React.Component <IProps, IState> {
         getUsername(this.updateUserName);
         this.setState({ loggedIn: true });
         this.fireBaseListener();
-        // tslint:disable: no-console
-        console.log(page);
         history.push(`${page}`);
       } else if (user === null && this.state.loggedIn === false) {
         this.setState({ loggedIn: false });
