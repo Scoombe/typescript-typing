@@ -1,34 +1,41 @@
 import * as React from 'react';
+import * as ReactRouter from 'react-router-dom';
 import { Button, Grid, Message } from 'semantic-ui-react';
 import { wordsPerMinTest } from 'wpmtest';
 import TypingHeader from '../../Components/TypingHeader';
-import { createScore } from '../../Core/firebase-functions';
+import { IRaceObj } from '../../Core/definitions';
+import { createScore, getUserRaces } from '../../Core/firebase-functions';
 import Finish from './Components/Finish';
 import RaceModal from './Components/RaceModal';
+import Races from './Components/Races';
 import Test from './Components/Test';
 import './TypingTest.css';
-
 interface IState {
   finished: boolean;
   error: string;
   message: string;
   loggedIn: boolean;
   raceModalOpen: boolean;
+  races: {
+    [key: string]: IRaceObj;
+  };
   started: boolean;
 }
 
-class TypingTest extends React.Component<{}, IState> {
+class TypingTest extends React.Component<ReactRouter.RouteComponentProps, IState> {
   public wordsTest: wordsPerMinTest ;
-  constructor(props: {}) {
+  constructor(props: ReactRouter.RouteComponentProps) {
     super(props);
     this.finishedFunc = this.finishedFunc.bind(this);
     this.wordsTest = new wordsPerMinTest(this.finishedFunc, 0.5);
     this.checkKey = this.checkKey.bind(this);
     this.closeModal = this.closeModal.bind(this);
     this.getDisplayText = this.getDisplayText.bind(this);
+    this.getRacesCallback = this.getRacesCallback.bind(this);
     this.getStats = this.getStats.bind(this);
     this.loggedIn = this.loggedIn.bind(this);
     this.openModal = this.openModal.bind(this);
+    this.raceClick = this.raceClick.bind(this);
     this.restartTest = this.restartTest.bind(this);
     this.renderFinish = this.renderFinish.bind(this);
     this.renderTest = this.renderTest.bind(this);
@@ -40,6 +47,7 @@ class TypingTest extends React.Component<{}, IState> {
       loggedIn: false,
       message: '',
       raceModalOpen: false,
+      races: {},
       started: false,
     };
   }
@@ -49,7 +57,7 @@ class TypingTest extends React.Component<{}, IState> {
   }
 
   public render() {
-    const { finished, error, message, raceModalOpen, started } = this.state;
+    const { finished, error, message, raceModalOpen, races, started } = this.state;
     return (
       <Grid>
         <Grid.Column width={16}>
@@ -84,12 +92,25 @@ class TypingTest extends React.Component<{}, IState> {
           <Grid.Column width={3} />
         </Grid.Row>
         <RaceModal modalOpen={raceModalOpen} closeModal={this.closeModal}/>
+        <Races races={races} onClick={this.raceClick}/>
       </Grid>
     );
   }
 
   private loggedIn() {
     this.setState({ loggedIn: true });
+    getUserRaces(this.getRacesCallback);
+  }
+
+  private getRacesCallback(race: IRaceObj) {
+    const { races } = this.state;
+    races[race.key] = race;
+    this.setState({ races });
+  }
+
+  private raceClick(raceKey: string) {
+    const { history } = this.props;
+    history.push(`/races/${raceKey}`);
   }
 
   private finishedFunc() {
@@ -219,4 +240,4 @@ class TypingTest extends React.Component<{}, IState> {
   }
 }
 
-export default TypingTest;
+export default  ReactRouter.withRouter(TypingTest);
