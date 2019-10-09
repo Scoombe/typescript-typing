@@ -61,7 +61,13 @@ class Races extends React.Component <ReactRouter.RouteComponentProps, IState> {
             </Grid.Row>
           </React.Fragment>
         )}
-        {showRace && <Race script={race.script} />}
+        {showRace && (
+          <Grid.Row centered={true} columns={2}>
+            <Grid.Column>
+              <Race script={race.script} />
+            </Grid.Column>
+          </Grid.Row>
+        )}
       </Grid>
     );
   }

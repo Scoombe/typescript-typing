@@ -11,6 +11,7 @@ interface IProps {
 interface IState {
   error: string;
   message: string;
+  finishTime: number;
   finished: boolean;
   started: boolean;
 }
@@ -21,6 +22,7 @@ class Race extends React.Component<IProps, IState> {
     super(props);
     this.wordsTest = new wordsPerMinTest(this.testFinished, 2);
     this.wordsTest.completeText = props.script;
+    this.wordsTest.curDisplayText = props.script;
     this.checkKey = this.checkKey.bind(this);
     this.getDisplayText = this.getDisplayText.bind(this);
     this.getStats = this.getStats.bind(this);
@@ -33,6 +35,7 @@ class Race extends React.Component<IProps, IState> {
     this.testFinished = this.testFinished.bind(this);
     this.state = {
       error: '',
+      finishTime: 0,
       finished: false,
       message: '',
       started: true,
@@ -139,7 +142,7 @@ class Race extends React.Component<IProps, IState> {
   private checkKey(value: string): { newWord: boolean, isCharCorrect: boolean, errorText?: string } {
     if (this.wordsTest.started) {
       const charCheck = this.wordsTest.checkKeyChar(value);
-      if (charCheck.isCharCorrect && this.wordsTest.charPos === this.wordsTest.completeText.length - 1) {
+      if (charCheck.isCharCorrect && this.wordsTest.charPos === this.wordsTest.completeText.length) {
         this.testFinished();
       }
       return charCheck;
@@ -149,15 +152,17 @@ class Race extends React.Component<IProps, IState> {
   private renderFinish(): JSX.Element {
     const {
       wordCount,
-      secTimer,
       lastTenAvWPM,
       averageWPM,
     } = this.wordsTest;
+    const { finishTime } = this.state;
+    const elapsedTime: string =   ((120 - finishTime)  / 60).toFixed(2);
+    console.log(elapsedTime);
     return (
       <Finish
         restart={this.restartTest}
-        minutes={secTimer / 60}
-        wpm={wordCount / (secTimer / 60)}
+        minutes={+elapsedTime}
+        wpm={wordCount / +elapsedTime}
         wordCount={wordCount}
         lastTenAvWPM={lastTenAvWPM}
         averageWPM={averageWPM}
@@ -182,11 +187,15 @@ class Race extends React.Component<IProps, IState> {
   }
 
   private restartTest() {
+    const { script } = this.props;
     this.wordsTest.restartTest();
+    this.wordsTest.completeText = script;
+    this.wordsTest.curDisplayText = script;
     this.setState({ finished: false });
   }
 
   private testFinished() {
+    this.setState({ finishTime: (this.wordsTest.stopwatch.ms / 1000) });
     this.wordsTest.finishStopWatch();
     this.wordsTest.started = false;
     this.setState({ finished: true });

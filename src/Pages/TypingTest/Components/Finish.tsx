@@ -24,7 +24,7 @@ class Finish extends React.Component <IProps>  {
             </p>
           </li>
           <li>
-            Your WPM: <strong>{wpm}</strong>
+            Your WPM: <strong>{wpm.toFixed(2)}</strong>
           </li>
           <li>
             Average words per minute
