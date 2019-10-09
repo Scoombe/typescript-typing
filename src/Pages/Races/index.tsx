@@ -64,7 +64,7 @@ class Races extends React.Component <ReactRouter.RouteComponentProps, IState> {
         {showRace && (
           <Grid.Row centered={true} columns={2}>
             <Grid.Column>
-              <Race script={race.script} />
+              <Race script={race.script} raceId={raceId}/>
             </Grid.Column>
           </Grid.Row>
         )}

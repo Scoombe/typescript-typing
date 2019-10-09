@@ -1,10 +1,13 @@
 import * as React from 'react';
 import { Button, Grid, Message } from 'semantic-ui-react';
 import { wordsPerMinTest } from 'wpmtest';
+import { IRaceScoreObj } from '../../../Core/definitions';
+import { createRaceScore } from '../../../Core/firebase-functions';
 import Finish from '../../TypingTest/Components/Finish';
 import Test from '../../TypingTest/Components/Test';
 
 interface IProps {
+  raceId: string;
   script: string;
 }
 
@@ -157,7 +160,6 @@ class Race extends React.Component<IProps, IState> {
     } = this.wordsTest;
     const { finishTime } = this.state;
     const elapsedTime: string =   ((120 - finishTime)  / 60).toFixed(2);
-    console.log(elapsedTime);
     return (
       <Finish
         restart={this.restartTest}
@@ -195,9 +197,25 @@ class Race extends React.Component<IProps, IState> {
   }
 
   private testFinished() {
-    this.setState({ finishTime: (this.wordsTest.stopwatch.ms / 1000) });
+    const finishTime = this.wordsTest.stopwatch.ms / 1000;
+    const { raceId } = this.props;
+    const {
+      wordCount,
+      averageWPM,
+    } = this.wordsTest;
+    const score: IRaceScoreObj = {
+      averageWPM,
+      raceId,
+      WPM: wordCount / (120 - finishTime)  / 60,
+      createdOn: 0,
+      key: '',
+      userId: '',
+      userName: '',
+    };
+    this.setState({ finishTime });
     this.wordsTest.finishStopWatch();
     this.wordsTest.started = false;
+    createRaceScore(score);
     this.setState({ finished: true });
   }
 }

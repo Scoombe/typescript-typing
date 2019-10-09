@@ -85,7 +85,7 @@ export function createRace(race: IRaceObj) {
 
 export function createRaceScore(score: IRaceScoreObj) {
   if (auth.currentUser !== null) {
-    database.ref('raceScores').push({
+    database.ref(`races/${score.raceId}/scores`).push({
       WPM: score.WPM,
       averageWPM: score.averageWPM,
       createOn: { '.sv': 'timestamp' },
