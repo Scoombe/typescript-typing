@@ -17,7 +17,7 @@ export interface IRaceObj {
   createdOn: number;
   key: string;
   scores: {
-    [key: string]: IScoreObj;
+    [key: string]: IRaceScoreObj;
   };
   script: string;
   stars: {

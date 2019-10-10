@@ -85,19 +85,27 @@ export function createRace(race: IRaceObj) {
 
 export function createRaceScore(score: IRaceScoreObj) {
   if (auth.currentUser !== null) {
-    database.ref(`races/${score.raceId}/scores`).push({
-      WPM: score.WPM,
-      averageWPM: score.averageWPM,
-      createOn: { '.sv': 'timestamp' },
-      raceId: score.raceId,
-      userId: auth.currentUser.uid,
+    database.ref('usernames').orderByChild('userId').equalTo(auth.currentUser.uid)
+    .on('value', (snapshot) => {
+      if (auth.currentUser !== null) {
+        database.ref('raceScores').push(
+          {
+            WPM: score.WPM,
+            averageWPM: score.averageWPM,
+            createdOn: { '.sv': 'timestamp' },
+            raceId: score.raceId,
+            userId: auth.currentUser.uid,
+            userName: snapshot.child('userName').val(),
+          },
+        );
+      }
     });
   }
 }
 
 export function createRaceStar(star: IRaceStarObj) {
   if (auth.currentUser !== null) {
-    database.ref('raceScores').push({
+    database.ref('raceStars').push({
       raceId: star.raceId,
       userId: auth.currentUser.uid,
     });
@@ -131,11 +139,16 @@ export function getRaces(callback: IRaceCallback) {
 }
 
 export function getRace(callback: IRaceCallback, raceId: string) {
-  database.ref(`races/${raceId}`).on('value', (snapshot) => {
-    if (snapshot.key) {
-      const race: IRaceObj = snapshot.val();
-      race.key = snapshot.key;
-      callback(race);
+  database.ref(`races/${raceId}`).on('value', (raceSnapshot) => {
+    if (raceSnapshot.key) {
+      database.ref('raceScores').orderByChild('raceId').equalTo(raceSnapshot.key).on('value', (scoreSnapshot) => {
+        const race: IRaceObj = raceSnapshot.val();
+        if (scoreSnapshot.exists() && raceSnapshot.key) {
+          race.key = raceSnapshot.key;
+          race.scores = scoreSnapshot.val();
+        }
+        callback(race);
+      });
     }
   });
 }

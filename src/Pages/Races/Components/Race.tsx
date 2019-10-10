@@ -206,7 +206,7 @@ class Race extends React.Component<IProps, IState> {
     const score: IRaceScoreObj = {
       averageWPM,
       raceId,
-      WPM: wordCount / (120 - finishTime)  / 60,
+      WPM: wordCount / ((120 - finishTime)  / 60),
       createdOn: 0,
       key: '',
       userId: '',
