@@ -99,7 +99,9 @@ class Races extends React.Component <ReactRouter.RouteComponentProps, IState> {
   private sortedUserScoreElements(): JSX.Element[] {
     const { scores } = this.state.race;
     const sortedScores: IRaceScoreObj[] =  Object.keys(scores).map((key: string) => {
-      return scores[key];
+      const score: IRaceScoreObj = scores[key];
+      score.key = key;
+      return score;
     });
     sortedScores.sort(sortObj('WPM'));
     const sortedScoreElements: JSX.Element[] = [];

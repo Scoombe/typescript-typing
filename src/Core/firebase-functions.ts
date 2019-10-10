@@ -86,8 +86,8 @@ export function createRace(race: IRaceObj) {
 export function createRaceScore(score: IRaceScoreObj) {
   if (auth.currentUser !== null) {
     database.ref('usernames').orderByChild('userId').equalTo(auth.currentUser.uid)
-    .on('value', (snapshot) => {
-      if (auth.currentUser !== null) {
+    .on('child_added', (snapshot) => {
+      if (auth.currentUser !== null && snapshot.key) {
         database.ref('raceScores').push(
           {
             WPM: score.WPM,
@@ -95,7 +95,7 @@ export function createRaceScore(score: IRaceScoreObj) {
             createdOn: { '.sv': 'timestamp' },
             raceId: score.raceId,
             userId: auth.currentUser.uid,
-            userName: snapshot.child('userName').val(),
+            userName: snapshot.val().username,
           },
         );
       }
