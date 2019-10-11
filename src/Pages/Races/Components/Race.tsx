@@ -1,54 +1,47 @@
 import * as React from 'react';
-import * as ReactRouter from 'react-router-dom';
 import { Button, Grid, Message } from 'semantic-ui-react';
 import { wordsPerMinTest } from 'wpmtest';
-import TypingHeader from '../../Components/TypingHeader';
-import { IRaceObj } from '../../Core/definitions';
-import { createScore, getUserRaces } from '../../Core/firebase-functions';
-import Finish from './Components/Finish';
-import RaceModal from './Components/RaceModal';
-import Races from './Components/Races';
-import Test from './Components/Test';
-import './TypingTest.css';
+import { IRaceScoreObj } from '../../../Core/definitions';
+import { createRaceScore } from '../../../Core/firebase-functions';
+import Finish from '../../TypingTest/Components/Finish';
+import Test from '../../TypingTest/Components/Test';
+
+interface IProps {
+  raceId: string;
+  script: string;
+}
+
 interface IState {
-  finished: boolean;
   error: string;
   message: string;
-  loggedIn: boolean;
-  raceModalOpen: boolean;
-  races: {
-    [key: string]: IRaceObj;
-  };
+  finishTime: number;
+  finished: boolean;
   started: boolean;
 }
 
-class TypingTest extends React.Component<ReactRouter.RouteComponentProps, IState> {
+class Race extends React.Component<IProps, IState> {
   public wordsTest: wordsPerMinTest;
-  constructor(props: ReactRouter.RouteComponentProps) {
+  constructor (props: IProps) {
     super(props);
-    this.finishedFunc = this.finishedFunc.bind(this);
-    this.wordsTest = new wordsPerMinTest(this.finishedFunc, 0.5);
+    this.wordsTest = new wordsPerMinTest(this.testFinished, 2);
+    this.wordsTest.completeText = props.script;
+    this.wordsTest.curDisplayText = props.script;
     this.checkKey = this.checkKey.bind(this);
-    this.closeModal = this.closeModal.bind(this);
     this.getDisplayText = this.getDisplayText.bind(this);
-    this.getRacesCallback = this.getRacesCallback.bind(this);
     this.getStats = this.getStats.bind(this);
-    this.loggedIn = this.loggedIn.bind(this);
-    this.openModal = this.openModal.bind(this);
-    this.raceClick = this.raceClick.bind(this);
-    this.restartTest = this.restartTest.bind(this);
+    this.renderButton = this.renderButton.bind(this);
     this.renderFinish = this.renderFinish.bind(this);
     this.renderTest = this.renderTest.bind(this);
+    this.restartTest = this.restartTest.bind(this);
     this.startStopWatch = this.startStopWatch.bind(this);
     this.startTest = this.startTest.bind(this);
+    this.testFinished = this.testFinished.bind(this);
     this.state = {
       error: '',
+      finishTime: 0,
       finished: false,
-      loggedIn: false,
       message: '',
-      raceModalOpen: false,
-      races: {},
-      started: false,
+      started: true,
     };
   }
 
@@ -57,12 +50,9 @@ class TypingTest extends React.Component<ReactRouter.RouteComponentProps, IState
   }
 
   public render() {
-    const { finished, error, message, raceModalOpen, races, started } = this.state;
+    const { finished, error, message, started } = this.state;
     return (
       <Grid>
-        <Grid.Column width={16}>
-          <TypingHeader loggedIn={this.loggedIn} page="/" />
-        </Grid.Column>
         <Grid.Row centered={true}>
           {!finished && !started && (
             <Grid.Column width={10}>
@@ -91,47 +81,8 @@ class TypingTest extends React.Component<ReactRouter.RouteComponentProps, IState
           </Grid.Column>
           <Grid.Column width={3} />
         </Grid.Row>
-        <RaceModal modalOpen={raceModalOpen} closeModal={this.closeModal}/>
-        {!started && (<Races races={races} onClick={this.raceClick}/>)}
       </Grid>
     );
-  }
-
-  private loggedIn() {
-    this.setState({ loggedIn: true });
-    getUserRaces(this.getRacesCallback);
-  }
-
-  private getRacesCallback(race: IRaceObj) {
-    const { races } = this.state;
-    races[race.key] = race;
-    this.setState({ races });
-  }
-
-  private raceClick(raceKey: string) {
-    const { history } = this.props;
-    // tslint:disable-next-line: no-console
-    console.log(raceKey);
-    history.push({ pathname: '/races', search: `?race=${raceKey}` });
-  }
-
-  private finishedFunc() {
-    const { wordCount, averageWPM, minutes } = this.wordsTest;
-    const score = {
-      WPM: wordCount / minutes,
-      averageWPM: +averageWPM.toFixed(2),
-      createdOn: 0,
-      key: '',
-      userId: '',
-      userName: '',
-    };
-    createScore(score);
-    this.setState({ finished: true });
-  }
-
-  private restartTest() {
-    this.wordsTest.restartTest();
-    this.setState({ finished: false });
   }
 
   private getDisplayText(errorText?: string): JSX.Element {
@@ -176,14 +127,6 @@ class TypingTest extends React.Component<ReactRouter.RouteComponentProps, IState
     );
   }
 
-  private checkKey(value: string): { newWord: boolean, isCharCorrect: boolean, errorText?: string } {
-    if (this.wordsTest.started) {
-      const charCheck = this.wordsTest.checkKeyChar(value);
-      return charCheck;
-    }
-    return { newWord: false, isCharCorrect: true };
-  }
-
   private renderTest(): JSX.Element {
     return (
       <Test
@@ -199,24 +142,36 @@ class TypingTest extends React.Component<ReactRouter.RouteComponentProps, IState
     this.wordsTest.startStopWatch();
   }
 
+  private checkKey(value: string): { newWord: boolean, isCharCorrect: boolean, errorText?: string } {
+    if (this.wordsTest.started) {
+      const charCheck = this.wordsTest.checkKeyChar(value);
+      if (charCheck.isCharCorrect && this.wordsTest.charPos === this.wordsTest.completeText.length) {
+        this.testFinished();
+      }
+      return charCheck;
+    }
+    return { newWord: false, isCharCorrect: true };
+  }
   private renderFinish(): JSX.Element {
     const {
       wordCount,
-      minutes,
       lastTenAvWPM,
       averageWPM,
     } = this.wordsTest;
+    const { finishTime } = this.state;
+    const elapsedTime: string =   ((120 - finishTime)  / 60).toFixed(2);
     return (
       <Finish
         restart={this.restartTest}
+        minutes={+elapsedTime}
+        wpm={wordCount / +elapsedTime}
         wordCount={wordCount}
-        minutes={minutes}
-        wpm={wordCount / minutes}
         lastTenAvWPM={lastTenAvWPM}
         averageWPM={averageWPM}
       />
     );
   }
+
   private renderButton(): JSX.Element {
     return(
       <Grid.Row centered={true}>
@@ -224,22 +179,45 @@ class TypingTest extends React.Component<ReactRouter.RouteComponentProps, IState
           <Button onClick={this.startTest}>
             Start New Typing Test
           </Button>
-          <Button onClick={this.openModal}>
-            Create new race
-          </Button>
         </Grid.Column>
       </Grid.Row>
     );
   }
+
   private startTest(): void {
     this.setState({ started: true });
   }
-  private openModal() {
-    this.setState({ raceModalOpen: true });
+
+  private restartTest() {
+    const { script } = this.props;
+    this.wordsTest.restartTest();
+    this.wordsTest.completeText = script;
+    this.wordsTest.curDisplayText = script;
+    this.setState({ finished: false });
   }
-  private closeModal() {
-    this.setState({ raceModalOpen: false });
+
+  private testFinished() {
+    const finishTime = this.wordsTest.stopwatch.ms / 1000;
+    const { raceId } = this.props;
+    const {
+      wordCount,
+      averageWPM,
+    } = this.wordsTest;
+    const score: IRaceScoreObj = {
+      averageWPM,
+      raceId,
+      WPM: wordCount / ((120 - finishTime)  / 60),
+      createdOn: 0,
+      key: '',
+      userId: '',
+      userName: '',
+    };
+    this.setState({ finishTime });
+    this.wordsTest.finishStopWatch();
+    this.wordsTest.started = false;
+    createRaceScore(score);
+    this.setState({ finished: true });
   }
 }
 
-export default  ReactRouter.withRouter(TypingTest);
+export default Race;

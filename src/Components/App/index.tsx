@@ -2,6 +2,7 @@ import * as React from 'react';
 import * as reactRouter from 'react-router-dom';
 import 'semantic-ui-css/semantic.min.css';
 import LoginPage from '../../Pages/LoginPage';
+import Races from '../../Pages/Races';
 import ScoresPage from '../../Pages/ScoresPage';
 import TypingTest from '../../Pages/TypingTest';
 import './App.css';
@@ -15,6 +16,7 @@ class App extends React.Component {
         <reactRouter.Route exact={true} path="/login" component={LoginPage} />
         <reactRouter.Route exact={true} path="/scores" component={ScoresPage} />
         <reactRouter.Route exact={true} path="/signup" component={LoginPage} />
+        <reactRouter.Route path="/races" component={Races} />
       </reactRouter.Switch>
       </div>
     );

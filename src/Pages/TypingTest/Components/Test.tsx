@@ -4,6 +4,7 @@ interface IProps {
   getDisplayText: (errorText?: string) => JSX.Element;
   checkKey: (key: string) => { newWord: boolean, isCharCorrect: boolean, errorText?: string };
   startStopWatch: () => void;
+  wordText?: string;
 }
 
 interface IState {
