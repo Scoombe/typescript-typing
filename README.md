@@ -5,3 +5,6 @@ This has been updated to typescript from the react typing project.
 https://github.com/Scoombe/react-typing/
 
 
+## Preview
+
+https://kind-wescoff-4343ff.netlify.com
