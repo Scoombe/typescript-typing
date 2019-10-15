@@ -2,6 +2,8 @@ import * as React from 'react';
 
 interface IProps {
   averageWPM: number;
+  createRace?: () => void;
+  home: () => void;
   lastTenAvWPM: number;
   minutes: number;
   restart: () => void;
@@ -12,7 +14,7 @@ interface IProps {
 class Finish extends React.Component <IProps>  {
   public render() {
     const {
-      restart, wordCount, minutes, wpm, lastTenAvWPM, averageWPM,
+     createRace, restart, wordCount, minutes, wpm, lastTenAvWPM, averageWPM, home,
     } = this.props;
     return (
       <div className="typingTest">
@@ -38,6 +40,8 @@ class Finish extends React.Component <IProps>  {
           </li>
         </ul>
         <button type="button" className="retry" onClick={restart}>Retry</button>
+        {createRace && <button type="button" className="create" onClick={createRace}>Create Race</button>}
+        <button type="button" className="home" onClick={home}>Home</button>
       </div>
     );
   }

@@ -98,6 +98,13 @@ class Races extends React.Component <ReactRouter.RouteComponentProps, IState> {
 
   private sortedUserScoreElements(): JSX.Element[] {
     const { scores } = this.state.race;
+    if (typeof(scores) === 'undefined' || Object.keys(scores).length === 0) {
+      return ([(
+        <List.Content key="empty">
+          No Scores
+        </List.Content>
+      )]);
+    }
     const sortedScores: IRaceScoreObj[] =  Object.keys(scores).map((key: string) => {
       const score: IRaceScoreObj = scores[key];
       score.key = key;

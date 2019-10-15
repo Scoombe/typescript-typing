@@ -1,4 +1,5 @@
 import * as React from 'react';
+import * as ReactRouter from 'react-router-dom';
 import { Button, Grid, Message } from 'semantic-ui-react';
 import { wordsPerMinTest } from 'wpmtest';
 import { IRaceScoreObj } from '../../../Core/definitions';
@@ -6,7 +7,7 @@ import { createRaceScore } from '../../../Core/firebase-functions';
 import Finish from '../../TypingTest/Components/Finish';
 import Test from '../../TypingTest/Components/Test';
 
-interface IProps {
+interface IProps extends ReactRouter.RouteComponentProps  {
   raceId: string;
   script: string;
 }
@@ -27,6 +28,7 @@ class Race extends React.Component<IProps, IState> {
     this.wordsTest.completeText = props.script;
     this.wordsTest.curDisplayText = props.script;
     this.checkKey = this.checkKey.bind(this);
+    this.homeClicked = this.homeClicked.bind(this);
     this.getDisplayText = this.getDisplayText.bind(this);
     this.getStats = this.getStats.bind(this);
     this.renderButton = this.renderButton.bind(this);
@@ -162,6 +164,7 @@ class Race extends React.Component<IProps, IState> {
     const elapsedTime: string =   ((120 - finishTime)  / 60).toFixed(2);
     return (
       <Finish
+        home={this.homeClicked}
         restart={this.restartTest}
         minutes={+elapsedTime}
         wpm={wordCount / +elapsedTime}
@@ -172,6 +175,10 @@ class Race extends React.Component<IProps, IState> {
     );
   }
 
+  private homeClicked(): void {
+    const { history } = this.props;
+    history.push('/');
+  }
   private renderButton(): JSX.Element {
     return(
       <Grid.Row centered={true}>
@@ -220,4 +227,4 @@ class Race extends React.Component<IProps, IState> {
   }
 }
 
-export default Race;
+export default ReactRouter.withRouter(Race);
