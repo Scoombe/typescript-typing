@@ -76,7 +76,7 @@ export function createRace(race: IRaceObj) {
   if (auth.currentUser !== null) {
     database.ref('races').push({
       createdOn: { '.sv': 'timestamp' },
-      script: race.script,
+      script: race.script.trim(),
       title: race.title,
       userId: auth.currentUser.uid,
     });
