@@ -53,7 +53,7 @@ export function createScore(score: IScoreObj) {
     database.ref('scores').push({
       WPM: score.WPM,
       averageWPM: score.averageWPM,
-      createOn: { '.sv': 'timestamp' },
+      createdOn: { '.sv': 'timestamp' },
       userId: auth.currentUser.uid,
     });
   }
