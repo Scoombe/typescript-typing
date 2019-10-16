@@ -21,9 +21,11 @@ const emptyRace: IRaceObj = {
   key: '',
   scores: {},
   script: '',
-  stars: {},
+  stars: 0,
   title: '',
   userId: '',
+  userName: '',
+  userStarred: false,
 };
 
 class RaceModal extends React.Component <IProps, IState> {

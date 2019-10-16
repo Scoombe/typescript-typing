@@ -1,10 +1,11 @@
+import { differenceInDays } from 'date-fns';
 import { firebaseAuth as auth, firebaseDB as database } from '../config/fire';
-import { IRaceObj, IRaceScoreObj, IRaceStarObj, IScoreObj, IUserNameObj } from './definitions';
-
+import { IRaceObj, IRaceScoreObj, IScoreObj, IUserNameObj } from './definitions';
 type ICallbackType = (error: {error: boolean, message: string}) => void;
 type IUserNameCallBack = (userName: IUserNameObj) => void;
 type IScoreCallback = (score: IScoreObj) => void;
 type IRaceCallback = (race: IRaceObj) => void;
+type IStarCallback = (count: number) => void;
 // auth functions
 export function createUser(userDetails: { email: string, password: string, username: string },
                            callback: ICallbackType): void {
@@ -74,11 +75,17 @@ export function getUserScores(callback: IScoreCallback) {
 
 export function createRace(race: IRaceObj) {
   if (auth.currentUser !== null) {
-    database.ref('races').push({
-      createdOn: { '.sv': 'timestamp' },
-      script: race.script.trim(),
-      title: race.title,
-      userId: auth.currentUser.uid,
+    database.ref('usernames').orderByChild('userId').equalTo(auth.currentUser.uid)
+    .on('child_added', (snapshot) => {
+      if (auth.currentUser !== null && snapshot.key) {
+        database.ref('races').push({
+          createdOn: { '.sv': 'timestamp' },
+          script: race.script.trim(),
+          title: race.title,
+          userId: auth.currentUser.uid,
+          userName: snapshot.val().username,
+        });
+      }
     });
   }
 }
@@ -103,10 +110,10 @@ export function createRaceScore(score: IRaceScoreObj) {
   }
 }
 
-export function createRaceStar(star: IRaceStarObj) {
+export function createRaceStar(raceId: string) {
   if (auth.currentUser !== null) {
     database.ref('raceStars').push({
-      raceId: star.raceId,
+      raceId,
       userId: auth.currentUser.uid,
     });
   }
@@ -133,6 +140,37 @@ export function getRaces(callback: IRaceCallback) {
         const race: IRaceObj = snapshot.val();
         race.key = snapshot.key;
         callback(race);
+      }
+    });
+  }
+}
+
+export function getGlobalRaces(callback: IRaceCallback) {
+  let userStarred = false;
+  if (auth.currentUser !== null) {
+    database.ref('races').on('child_added', (snapshot) => {
+      userStarred = false;
+      if (snapshot.key) {
+        if (differenceInDays(snapshot.val().createdOn, new Date()) <= 14) {
+          database.ref('raceStars').orderByChild('raceId').equalTo(snapshot.key).on('value', (starSnapshot) => {
+            if (snapshot.key && auth.currentUser !== null) {
+              const race: IRaceObj = snapshot.val();
+              race.key = snapshot.key;
+              race.userStarred = userStarred;
+              if (starSnapshot.exists) {
+                starSnapshot.forEach((value) => {
+                  if (value.val().userId === snapshot.val().uid) {
+                    userStarred = true;
+                  }
+                });
+                race.stars = starSnapshot.numChildren();
+              } else {
+                race.stars = 0;
+              }
+              callback(race);
+            }
+          });
+        }
       }
     });
   }

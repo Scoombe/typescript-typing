@@ -20,11 +20,11 @@ export interface IRaceObj {
     [key: string]: IRaceScoreObj;
   };
   script: string;
-  stars: {
-    [key: string]: {userId: string};
-  };
+  stars: number;
+  userStarred: boolean;
   title: string;
   userId: string;
+  userName: string;
 }
 
 export interface IRaceScoreObj {
@@ -35,9 +35,4 @@ export interface IRaceScoreObj {
   userName: string;
   userId: string;
   WPM: number;
-}
-
-export interface IRaceStarObj {
-  raceId: string;
-  userId: string;
 }
