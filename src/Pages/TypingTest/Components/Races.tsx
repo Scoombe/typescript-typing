@@ -86,7 +86,8 @@ class Races extends React.Component <IProps> {
   private returnGlobalScoreListItem(race: IRaceObj): JSX.Element {
     return(
       <Segment key={race.key} data-key={race.key} onClick={this.raceClicked}>
-        {race.title} by {race.userName}
+        {race.title} <br/>
+        <b>by {race.userName}</b>
       </Segment>
     );
   }
