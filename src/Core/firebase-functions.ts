@@ -190,9 +190,10 @@ export function getRace(callback: IRaceCallback, raceId: string) {
               }
             });
           }
-          if (scoreSnapshot.exists() && raceSnapshot.key) {
-            race.key = raceSnapshot.key;
+          if (scoreSnapshot.exists()) {
             race.scores = scoreSnapshot.val();
+          } else if (raceSnapshot.key) {
+            race.key = raceSnapshot.key;
           }
           race.userStarred = userStarred;
           callback(race);
