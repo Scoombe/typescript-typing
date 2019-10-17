@@ -16,6 +16,7 @@ interface IState {
   message: string;
   loggedIn: boolean;
   raceModalOpen: boolean;
+  raceScript: string;
   races: {
     [key: string]: IRaceObj;
   };
@@ -30,9 +31,12 @@ class TypingTest extends React.Component<ReactRouter.RouteComponentProps, IState
     this.wordsTest = new wordsPerMinTest(this.finishedFunc, 0.5);
     this.checkKey = this.checkKey.bind(this);
     this.closeModal = this.closeModal.bind(this);
+    this.changeScript = this.changeScript.bind(this);
+    this.createRace = this.createRace.bind(this);
     this.getDisplayText = this.getDisplayText.bind(this);
     this.getRacesCallback = this.getRacesCallback.bind(this);
     this.getStats = this.getStats.bind(this);
+    this.homeClicked = this.homeClicked.bind(this);
     this.loggedIn = this.loggedIn.bind(this);
     this.openModal = this.openModal.bind(this);
     this.raceClick = this.raceClick.bind(this);
@@ -47,6 +51,7 @@ class TypingTest extends React.Component<ReactRouter.RouteComponentProps, IState
       loggedIn: false,
       message: '',
       raceModalOpen: false,
+      raceScript: '',
       races: {},
       started: false,
     };
@@ -57,7 +62,7 @@ class TypingTest extends React.Component<ReactRouter.RouteComponentProps, IState
   }
 
   public render() {
-    const { finished, error, message, raceModalOpen, races, started } = this.state;
+    const { finished, error, message, raceModalOpen, raceScript, races, started } = this.state;
     return (
       <Grid>
         <Grid.Column width={16}>
@@ -91,7 +96,12 @@ class TypingTest extends React.Component<ReactRouter.RouteComponentProps, IState
           </Grid.Column>
           <Grid.Column width={3} />
         </Grid.Row>
-        <RaceModal modalOpen={raceModalOpen} closeModal={this.closeModal}/>
+        <RaceModal
+          modalOpen={raceModalOpen}
+          closeModal={this.closeModal}
+          newScript={raceScript}
+          scriptChange={this.changeScript}
+        />
         {!started && (<Races races={races} onClick={this.raceClick}/>)}
       </Grid>
     );
@@ -110,8 +120,6 @@ class TypingTest extends React.Component<ReactRouter.RouteComponentProps, IState
 
   private raceClick(raceKey: string) {
     const { history } = this.props;
-    // tslint:disable-next-line: no-console
-    console.log(raceKey);
     history.push({ pathname: '/races', search: `?race=${raceKey}` });
   }
 
@@ -208,6 +216,8 @@ class TypingTest extends React.Component<ReactRouter.RouteComponentProps, IState
     } = this.wordsTest;
     return (
       <Finish
+        createRace={this.createRace}
+        home={this.homeClicked}
         restart={this.restartTest}
         wordCount={wordCount}
         minutes={minutes}
@@ -216,6 +226,18 @@ class TypingTest extends React.Component<ReactRouter.RouteComponentProps, IState
         averageWPM={averageWPM}
       />
     );
+  }
+  private createRace(): void {
+    const raceScript = this.wordsTest.completeText.slice(0, this.wordsTest.charPos);
+    this.setState({ raceScript }, this.openModal);
+  }
+
+  private changeScript(script: string) {
+    this.setState({ raceScript: script });
+  }
+
+  private homeClicked(): void {
+    this.setState({ finished: false, started: false });
   }
   private renderButton(): JSX.Element {
     return(

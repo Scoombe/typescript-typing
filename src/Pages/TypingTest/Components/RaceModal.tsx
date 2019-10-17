@@ -6,6 +6,8 @@ import { createRace } from '../../../Core/firebase-functions';
 interface IProps {
   closeModal: () => void;
   modalOpen: boolean;
+  newScript: string;
+  scriptChange: (script: string) => void;
 }
 
 interface IState {
@@ -32,14 +34,17 @@ class RaceModal extends React.Component <IProps, IState> {
     this.titleChange = this.titleChange.bind(this);
     this.scriptChange = this.scriptChange.bind(this);
     this.validateForm = this.validateForm.bind(this);
+    const modalRace  = Object.create(emptyRace);
+    modalRace.script = props.newScript;
     this.state = {
-      modalRace: Object.create(emptyRace),
+      modalRace,
       scriptError: '',
       titleError: '',
     };
   }
+
   public render() {
-    const { modalOpen } = this.props;
+    const { modalOpen, newScript } = this.props;
     const { titleError, modalRace, scriptError } = this.state;
     return(
       <Modal open={modalOpen}>
@@ -71,7 +76,7 @@ class RaceModal extends React.Component <IProps, IState> {
               <Input
                 placeholder="Race script"
                 onChange={this.scriptChange}
-                value={modalRace.script}
+                value={newScript}
               />
             </Form.Field>
           </Form>
@@ -95,15 +100,15 @@ class RaceModal extends React.Component <IProps, IState> {
   }
 
   private scriptChange(e: {target: {value: string}}) {
-    const { modalRace } = this.state;
-    modalRace.script = e.target.value;
-    this.setState({ modalRace });
+    const { scriptChange } = this.props;
+    scriptChange(e.target.value);
     this.validateForm();
   }
 
   private createRace() {
-    const { closeModal } = this.props;
+    const { closeModal, newScript } = this.props;
     const { modalRace } = this.state;
+    modalRace.script = newScript;
     if (this.validateForm) {
       createRace(modalRace);
       this.setState({ modalRace: Object.create(emptyRace) });
@@ -119,6 +124,7 @@ class RaceModal extends React.Component <IProps, IState> {
 
   private validateForm(): boolean {
     const { modalRace } = this.state;
+    const { newScript } = this.props;
     let { scriptError, titleError } = this.state;
     let error: boolean = false;
     if (modalRace.title.length > 0 && modalRace.title.length < 100) {
@@ -127,10 +133,10 @@ class RaceModal extends React.Component <IProps, IState> {
       titleError = 'Title can\'t be empty and under 100 chars';
       error = false;
     }
-    if (modalRace.script.length > 20 && modalRace.script.length < 300) {
+    if (newScript.length > 20 && newScript.length < 1000) {
       scriptError = '';
     } else {
-      scriptError = 'Script must be over 20 chars and be under 300 chars';
+      scriptError = 'Script must be over 20 chars and be under 1000 chars';
       error = false;
     }
     this.setState({ scriptError, titleError });

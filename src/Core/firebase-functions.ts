@@ -75,8 +75,8 @@ export function getUserScores(callback: IScoreCallback) {
 export function createRace(race: IRaceObj) {
   if (auth.currentUser !== null) {
     database.ref('races').push({
-      createOn: { '.sv': 'timestamp' },
-      script: race.script,
+      createdOn: { '.sv': 'timestamp' },
+      script: race.script.trim(),
       title: race.title,
       userId: auth.currentUser.uid,
     });
