@@ -73,6 +73,19 @@ export function getUserScores(callback: IScoreCallback) {
   }
 }
 
+export function getScoresFromToday(callback: IScoreCallback) {
+  if (auth.currentUser) {
+    database.ref('scores').orderByChild('userId').equalTo(auth.currentUser.uid)
+    .on('child_added', (snapshot) => {
+      if (snapshot.key && differenceInDays(snapshot.val().createdOn, new Date()) === 0) {
+        const score: IScoreObj = snapshot.val();
+        score.key = snapshot.key;
+        callback(score);
+      }
+    });
+  }
+}
+
 export function createRace(race: IRaceObj) {
   if (auth.currentUser !== null) {
     database.ref('usernames').orderByChild('userId').equalTo(auth.currentUser.uid)
