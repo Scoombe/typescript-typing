@@ -3,7 +3,7 @@ import * as ReactRouter from 'react-router-dom';
 import { Button, Grid, Header, Icon, List } from 'semantic-ui-react';
 import TypingHeader from '../../Components/TypingHeader';
 import { IRaceObj, IRaceScoreObj } from '../../Core/definitions';
-import { getRace } from '../../Core/firebase-functions';
+import { createRaceStar, getRace } from '../../Core/firebase-functions';
 import { sortObj } from '../../Core/sort-functions';
 import Race from './Components/Race';
 
@@ -20,6 +20,7 @@ class Races extends React.Component <ReactRouter.RouteComponentProps, IState> {
     this.raceCallback = this.raceCallback.bind(this);
     this.showTest = this.showTest.bind(this);
     this.sortedUserScoreElements = this.sortedUserScoreElements.bind(this);
+    this.starRace = this.starRace.bind(this);
     const raceId =  new URLSearchParams(props.location.search).get('race');
     this.state = {
       race: {
@@ -48,7 +49,13 @@ class Races extends React.Component <ReactRouter.RouteComponentProps, IState> {
         </Grid.Row>
         {!showRace && (
           <React.Fragment>
-            <Grid.Row centered={true} columns={1}>
+            <Grid.Row columns="1">
+              <Grid.Column width={3} floated="left">
+                {race.userStarred && <Icon color="yellow" size="big" name="star"/>}
+                {!race.userStarred && <Icon size="big" name="star outline" onClick={this.starRace}/>}
+              </Grid.Column>
+            </Grid.Row>
+            <Grid.Row centered={true} columns={2}>
               <Grid.Column width="6">
                 <Header>{race.title}</Header>
               </Grid.Column>
@@ -135,6 +142,13 @@ class Races extends React.Component <ReactRouter.RouteComponentProps, IState> {
       </List.Content>
     </List.Item>
     );
+  }
+
+  private starRace() {
+    const { race } = this.state;
+    createRaceStar(race.key);
+    race.userStarred = true;
+    this.setState({ race });
   }
 }
 
