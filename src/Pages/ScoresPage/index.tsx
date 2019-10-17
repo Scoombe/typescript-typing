@@ -4,11 +4,14 @@ import {
 } from 'semantic-ui-react';
 import TypingHeader from '../../Components/TypingHeader';
 import { IScoreObj } from '../../Core/definitions';
-import { getUserScores } from '../../Core/firebase-functions';
+import { getScoresFromToday, getUserScores } from '../../Core/firebase-functions';
 import { sortObj } from '../../Core/sort-functions';
 
 interface IState {
   scores: {
+    [key: string]: IScoreObj;
+  };
+  todaysScores: {
     [key: string]: IScoreObj;
   };
 }
@@ -18,9 +21,11 @@ class ScoresPage extends React.Component<{}, IState> {
     super(props);
     this.state = {
       scores: {},
+      todaysScores: {},
     };
     this.loggedIn = this.loggedIn.bind(this);
     this.getUserScoresCallback = this.getUserScoresCallback.bind(this);
+    this.getTodaysScoreCallback = this.getTodaysScoreCallback.bind(this);
     this.userScoreElements = this.userScoreElements.bind(this);
     this.sortedUserScoreElements = this.sortedUserScoreElements.bind(this);
     this.returnScoreListItem = this.returnScoreListItem.bind(this);
@@ -35,7 +40,7 @@ class ScoresPage extends React.Component<{}, IState> {
           <Grid.Column width="4">
             <Header as="h2" icon={true} textAlign="center">
               <Icon name="user" circular={true} />
-              <Header.Content>User Scores</Header.Content>
+              <Header.Content>Todays Scores</Header.Content>
             </Header>
             <List size="large" celled={true}>
               {
@@ -61,6 +66,7 @@ class ScoresPage extends React.Component<{}, IState> {
 
   private loggedIn() {
     getUserScores(this.getUserScoresCallback);
+    getScoresFromToday(this.getTodaysScoreCallback);
   }
 
   private getUserScoresCallback(score: IScoreObj) {
@@ -69,21 +75,28 @@ class ScoresPage extends React.Component<{}, IState> {
     this.setState({ scores });
   }
 
+  private getTodaysScoreCallback(score: IScoreObj) {
+    const { todaysScores } = this.state;
+    todaysScores[score.key] = score;
+    this.setState({ todaysScores });
+  }
+
   private userScoreElements(): JSX.Element[] {
-    const { scores } = this.state;
-    return Object.keys(scores).map((key: string) => {
-      return this.returnScoreListItem(scores[key], false);
+    const { todaysScores } = this.state;
+    return Object.keys(todaysScores).map((key: string) => {
+      return this.returnScoreListItem(todaysScores[key], false);
     });
   }
 
   private sortedUserScoreElements(): JSX.Element[] {
     const { scores } = this.state;
-    const sortedScores: IScoreObj[] =  Object.keys(scores).map((key: string) => {
+    let sortedScores: IScoreObj[] =  Object.keys(scores).map((key: string) => {
       return scores[key];
     });
     sortedScores.sort(sortObj('WPM'));
     const sortedScoreElements: JSX.Element[] = [];
     let firstScore = true;
+    sortedScores = sortedScores.slice(0, 20);
     for (const score of sortedScores) {
       sortedScoreElements.push(
         this.returnScoreListItem(score, firstScore),
