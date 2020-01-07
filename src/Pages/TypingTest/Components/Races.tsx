@@ -107,7 +107,8 @@ class Races extends React.Component <IProps> {
   private returnScoreListItem(race: IRaceObj): JSX.Element {
     return(
       <Segment key={race.key} data-key={race.key} onClick={this.raceClicked}>
-        {race.title}
+        {race.title}<br/>
+        {race.stars} <Icon name="star" color="yellow"/>
       </Segment>
     );
   }
