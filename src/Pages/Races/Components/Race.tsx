@@ -8,6 +8,7 @@ import Finish from '../../TypingTest/Components/Finish';
 import Test from '../../TypingTest/Components/Test';
 
 interface IProps extends ReactRouter.RouteComponentProps  {
+  goBack: () => void;
   raceId: string;
   script: string;
 }
@@ -176,8 +177,7 @@ class Race extends React.Component<IProps, IState> {
   }
 
   private homeClicked(): void {
-    const { history } = this.props;
-    history.push('/');
+    this.props.goBack();
   }
   private renderButton(): JSX.Element {
     return(

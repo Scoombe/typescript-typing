@@ -1,3 +1,4 @@
+import { format } from 'date-fns';
 import * as React from 'react';
 import {
     Grid, Header, Icon, List,
@@ -113,6 +114,7 @@ class ScoresPage extends React.Component<{}, IState> {
        {first && <Icon name="trophy" color="yellow" />}
         WPM: {score.WPM}  <br />
         Average WPM: {score.averageWPM}
+        {score.createdOn !== undefined && <p>Done on: {format(score.createdOn, 'dd/MM/yy')}</p>}
       </List.Content>
     </List.Item>
     );

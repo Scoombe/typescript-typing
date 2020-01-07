@@ -159,14 +159,14 @@ export function getRaces(callback: IRaceCallback) {
 }
 
 export function getGlobalRaces(callback: IRaceCallback) {
-  let userStarred = false;
+  let userStarred: boolean;
   if (auth.currentUser !== null) {
     database.ref('races').on('child_added', (snapshot) => {
-      userStarred = false;
       if (snapshot.key) {
-        if (differenceInDays(snapshot.val().createdOn, new Date()) <= 14) {
+        if (differenceInDays(new Date(), snapshot.val().createdOn) <= 14) {
           database.ref('raceStars').orderByChild('raceId').equalTo(snapshot.key).on('value', (starSnapshot) => {
             if (snapshot.key && auth.currentUser !== null) {
+              userStarred = false;
               const race: IRaceObj = snapshot.val();
               race.key = snapshot.key;
               if (starSnapshot.exists) {
@@ -184,6 +184,39 @@ export function getGlobalRaces(callback: IRaceCallback) {
             }
           });
         }
+      }
+    });
+  }
+}
+
+export function getStarredRaces(callback: IRaceCallback) {
+  let userStarred: boolean;
+  if (auth.currentUser !== null) {
+    database.ref('races').on('child_added', (snapshot) => {
+      if (snapshot.key) {
+        database.ref('raceStars').orderByChild('raceId').equalTo(snapshot.key).on('value', (starSnapshot) => {
+          if (snapshot.key && auth.currentUser !== null) {
+            userStarred = false;
+            const race: IRaceObj = snapshot.val();
+            race.key = snapshot.key;
+            if (starSnapshot.exists) {
+              starSnapshot.forEach((value) => {
+                if (value.val().userId === snapshot.val().userId) {
+                  userStarred = true;
+                }
+              });
+              race.userStarred = userStarred;
+              race.stars = starSnapshot.numChildren();
+            } else {
+              race.stars = 0;
+            }
+            if (userStarred) {
+              // tslint:disable-next-line: no-console
+              console.log(race);
+              callback(race);
+            }
+          }
+        });
       }
     });
   }
