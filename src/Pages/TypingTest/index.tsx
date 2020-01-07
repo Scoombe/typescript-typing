@@ -4,7 +4,7 @@ import { Button, Grid, Message } from 'semantic-ui-react';
 import { wordsPerMinTest } from 'wpmtest';
 import TypingHeader from '../../Components/TypingHeader';
 import { IRaceObj } from '../../Core/definitions';
-import { createScore, getGlobalRaces, getUserRaces } from '../../Core/firebase-functions';
+import { createScore, getGlobalRaces, getStarredRaces, getUserRaces } from '../../Core/firebase-functions';
 import Finish from './Components/Finish';
 import RaceModal from './Components/RaceModal';
 import Races from './Components/Races';
@@ -24,6 +24,9 @@ interface IState {
   globalRaces: {
     [key: string]: IRaceObj;
   };
+  starredRaces: {
+    [key: string]: IRaceObj;
+  };
   started: boolean;
 }
 
@@ -40,6 +43,7 @@ class TypingTest extends React.Component<ReactRouter.RouteComponentProps, IState
     this.getDisplayText = this.getDisplayText.bind(this);
     this.getGlobalRacesCallback = this.getGlobalRacesCallback.bind(this);
     this.getRacesCallback = this.getRacesCallback.bind(this);
+    this.getStarredRacesCallback = this.getStarredRacesCallback.bind(this);
     this.getStats = this.getStats.bind(this);
     this.homeClicked = this.homeClicked.bind(this);
     this.loggedIn = this.loggedIn.bind(this);
@@ -59,6 +63,7 @@ class TypingTest extends React.Component<ReactRouter.RouteComponentProps, IState
       raceModalOpen: false,
       raceScript: '',
       races: {},
+      starredRaces: {},
       started: false,
     };
   }
@@ -68,7 +73,8 @@ class TypingTest extends React.Component<ReactRouter.RouteComponentProps, IState
   }
 
   public render() {
-    const { finished, error, globalRaces, message, raceModalOpen, raceScript, races, started } = this.state;
+    const { finished, error, globalRaces, message, raceModalOpen,
+      raceScript, races, starredRaces, started } = this.state;
     return (
       <Grid>
         <Grid.Column width={16}>
@@ -108,7 +114,9 @@ class TypingTest extends React.Component<ReactRouter.RouteComponentProps, IState
           newScript={raceScript}
           scriptChange={this.changeScript}
         />
-        {!started && (<Races yourRaces={races} globalRaces={globalRaces} onClick={this.raceClick}/>)}
+        {!started &&
+          (<Races yourRaces={races} globalRaces={globalRaces} starredRaces={starredRaces} onClick={this.raceClick}/>)
+        }
       </Grid>
     );
   }
@@ -117,6 +125,7 @@ class TypingTest extends React.Component<ReactRouter.RouteComponentProps, IState
     this.setState({ loggedIn: true });
     getUserRaces(this.getRacesCallback);
     getGlobalRaces(this.getGlobalRacesCallback);
+    getStarredRaces(this.getStarredRacesCallback);
   }
 
   private getRacesCallback(race: IRaceObj) {
@@ -131,6 +140,11 @@ class TypingTest extends React.Component<ReactRouter.RouteComponentProps, IState
     this.setState({ globalRaces });
   }
 
+  private getStarredRacesCallback (race: IRaceObj) {
+    const { starredRaces } = this.state;
+    starredRaces[race.key] = race;
+    this.setState({ starredRaces });
+  }
   private raceClick(raceKey: string) {
     const { history } = this.props;
     history.push({ pathname: '/races', search: `?race=${raceKey}` });

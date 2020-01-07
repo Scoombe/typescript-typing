@@ -1,3 +1,4 @@
+import { format } from 'date-fns';
 import * as React from 'react';
 import * as ReactRouter from 'react-router-dom';
 import { Button, Grid, Header, Icon, List } from 'semantic-ui-react';
@@ -16,6 +17,8 @@ interface IState {
 class Races extends React.Component <ReactRouter.RouteComponentProps, IState> {
   constructor(props: ReactRouter.RouteComponentProps) {
     super(props);
+    this.goBack = this.goBack.bind(this);
+    this.goHome = this.goHome.bind(this);
     this.loggedIn = this.loggedIn.bind(this);
     this.raceCallback = this.raceCallback.bind(this);
     this.showTest = this.showTest.bind(this);
@@ -49,8 +52,11 @@ class Races extends React.Component <ReactRouter.RouteComponentProps, IState> {
         </Grid.Row>
         {!showRace && (
           <React.Fragment>
-            <Grid.Row columns="1">
+            <Grid.Row columns="2">
               <Grid.Column width={3} floated="left">
+                <Icon size="big" name="arrow left" onClick={this.goHome} />
+              </Grid.Column>
+              <Grid.Column width={3} floated="right">
                 {race.userStarred && <Icon color="yellow" size="big" name="star"/>}
                 {!race.userStarred && <Icon size="big" name="star outline" onClick={this.starRace}/>}
               </Grid.Column>
@@ -85,7 +91,7 @@ class Races extends React.Component <ReactRouter.RouteComponentProps, IState> {
         {showRace && (
           <Grid.Row centered={true} columns={1}>
             <Grid.Column>
-              <Race script={race.script} raceId={raceId}/>
+              <Race script={race.script} raceId={raceId} goBack={this.goBack}/>
             </Grid.Column>
           </Grid.Row>
         )}
@@ -103,6 +109,14 @@ class Races extends React.Component <ReactRouter.RouteComponentProps, IState> {
 
   private showTest() {
     this.setState({ showRace: true });
+  }
+
+  private goBack() {
+    this.setState({ showRace: false });
+  }
+
+  private goHome() {
+    this.props.history.push('/');
   }
 
   private sortedUserScoreElements(): JSX.Element[] {
@@ -138,7 +152,8 @@ class Races extends React.Component <ReactRouter.RouteComponentProps, IState> {
        {first && <Icon name="trophy" color="yellow" />}
         WPM: {score.WPM}  <br />
         Average WPM: {score.averageWPM} <br />
-        User Name: {score.userName}
+        User Name: {score.userName} <br />
+        Done on: {format(score.createdOn, 'dd/MM/yy')}
       </List.Content>
     </List.Item>
     );

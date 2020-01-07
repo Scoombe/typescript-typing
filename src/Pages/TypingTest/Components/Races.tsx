@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Grid, Header, Segment } from 'semantic-ui-react';
+import { Grid, Header, Icon, Segment } from 'semantic-ui-react';
 import { IRaceObj } from '../../../Core/definitions';
 import { sortObj } from '../../../Core/sort-functions';
 
@@ -8,6 +8,9 @@ interface IProps {
     [key: string]: IRaceObj;
   };
   globalRaces: {
+    [key: string]: IRaceObj;
+  };
+  starredRaces: {
     [key: string]: IRaceObj;
   };
   onClick: (key: string) => void;
@@ -21,6 +24,7 @@ class Races extends React.Component <IProps> {
     this.raceElements = this.raceElements.bind(this);
     this.returnScoreListItem = this.returnScoreListItem.bind(this);
     this.returnGlobalScoreListItem = this.returnGlobalScoreListItem.bind(this);
+    this.starredRaceElements = this.starredRaceElements.bind(this);
   }
   public render() {
     return(
@@ -33,6 +37,18 @@ class Races extends React.Component <IProps> {
             <Segment.Group>
               {
                 this.raceElements()
+              }
+            </Segment.Group>
+          </Grid.Column>
+        </Grid.Row>
+        <Grid.Row centered={true} columns={2}>
+          <Grid.Column width="12">
+            <Header as="h2" icon={true} textAlign="center">
+              <Header.Content>Starred Races</Header.Content>
+            </Header>
+            <Segment.Group>
+              {
+                this.starredRaceElements()
               }
             </Segment.Group>
           </Grid.Column>
@@ -69,8 +85,21 @@ class Races extends React.Component <IProps> {
       return globalRaces[key];
     });
     sortedRaces.sort(sortObj('stars'));
-    for (const key of Object.keys(globalRaces)) {
-      raceElements.push(this.returnGlobalScoreListItem(globalRaces[key]));
+    for (const race of sortedRaces) {
+      raceElements.push(this.returnGlobalScoreListItem(globalRaces[race.key]));
+    }
+    return raceElements;
+  }
+
+  private starredRaceElements(): JSX.Element[] {
+    const { starredRaces } = this.props;
+    const raceElements: JSX.Element[] = [];
+    const sortedRaces: IRaceObj[] = Object.keys(starredRaces).map((key: string) => {
+      return starredRaces[key];
+    });
+    sortedRaces.sort(sortObj('stars'));
+    for (const race of sortedRaces) {
+      raceElements.push(this.returnGlobalScoreListItem(starredRaces[race.key]));
     }
     return raceElements;
   }
@@ -78,7 +107,8 @@ class Races extends React.Component <IProps> {
   private returnScoreListItem(race: IRaceObj): JSX.Element {
     return(
       <Segment key={race.key} data-key={race.key} onClick={this.raceClicked}>
-        {race.title}
+        {race.title}<br/>
+        {race.stars} <Icon name="star" color="yellow"/>
       </Segment>
     );
   }
@@ -87,7 +117,8 @@ class Races extends React.Component <IProps> {
     return(
       <Segment key={race.key} data-key={race.key} onClick={this.raceClicked}>
         {race.title} <br/>
-        <b>by {race.userName}</b>
+        by <b>{race.userName}</b><br/>
+        {race.stars} <Icon name="star" color="yellow"/>
       </Segment>
     );
   }

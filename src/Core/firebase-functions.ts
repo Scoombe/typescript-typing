@@ -137,9 +137,18 @@ export function getUserRaces(callback: IRaceCallback) {
     database.ref('races').orderByChild('userId').equalTo(auth.currentUser.uid)
     .on('child_added', (snapshot) => {
       if (snapshot.key) {
-        const race: IRaceObj = snapshot.val();
-        race.key = snapshot.key;
-        callback(race);
+        database.ref('raceStars').orderByChild('raceId').equalTo(snapshot.key).on('value', (starSnapshot) => {
+          if (snapshot.key && auth.currentUser !== null) {
+            const race: IRaceObj = snapshot.val();
+            race.key = snapshot.key;
+            if (starSnapshot.exists) {
+              race.stars = starSnapshot.numChildren();
+            }  else {
+              race.stars = 0;
+            }
+            callback(race);
+          }
+        });
       }
     });
   }
@@ -150,32 +159,33 @@ export function getRaces(callback: IRaceCallback) {
     database.ref('races').orderByChild('userId').equalTo(auth.currentUser.uid)
     .on('child_added', (snapshot) => {
       if (snapshot.key) {
-        const race: IRaceObj = snapshot.val();
-        race.key = snapshot.key;
-        callback(race);
+        database.ref('raceStars').orderByChild('raceId').equalTo(snapshot.key).on('value', (starSnapshot) => {
+          if (snapshot.key && auth.currentUser !== null) {
+            const race: IRaceObj = snapshot.val();
+            race.key = snapshot.key;
+            if (starSnapshot.exists) {
+              race.stars = starSnapshot.numChildren();
+            }  else {
+              race.stars = 0;
+            }
+            callback(race);
+          }
+        });
       }
     });
   }
 }
 
 export function getGlobalRaces(callback: IRaceCallback) {
-  let userStarred = false;
   if (auth.currentUser !== null) {
     database.ref('races').on('child_added', (snapshot) => {
-      userStarred = false;
       if (snapshot.key) {
-        if (differenceInDays(snapshot.val().createdOn, new Date()) <= 14) {
+        if (differenceInDays(new Date(), snapshot.val().createdOn) <= 14) {
           database.ref('raceStars').orderByChild('raceId').equalTo(snapshot.key).on('value', (starSnapshot) => {
             if (snapshot.key && auth.currentUser !== null) {
               const race: IRaceObj = snapshot.val();
               race.key = snapshot.key;
               if (starSnapshot.exists) {
-                starSnapshot.forEach((value) => {
-                  if (value.val().userId === snapshot.val().userId) {
-                    userStarred = true;
-                  }
-                });
-                race.userStarred = userStarred;
                 race.stars = starSnapshot.numChildren();
               } else {
                 race.stars = 0;
@@ -184,6 +194,37 @@ export function getGlobalRaces(callback: IRaceCallback) {
             }
           });
         }
+      }
+    });
+  }
+}
+
+export function getStarredRaces(callback: IRaceCallback) {
+  let userStarred: boolean;
+  if (auth.currentUser !== null) {
+    database.ref('races').on('child_added', (snapshot) => {
+      if (snapshot.key) {
+        database.ref('raceStars').orderByChild('raceId').equalTo(snapshot.key).on('value', (starSnapshot) => {
+          if (snapshot.key && auth.currentUser !== null) {
+            userStarred = false;
+            const race: IRaceObj = snapshot.val();
+            race.key = snapshot.key;
+            if (starSnapshot.exists) {
+              starSnapshot.forEach((value) => {
+                if (value.val().userId === snapshot.val().userId) {
+                  userStarred = true;
+                }
+              });
+              race.userStarred = userStarred;
+              race.stars = starSnapshot.numChildren();
+            } else {
+              race.stars = 0;
+            }
+            if (userStarred) {
+              callback(race);
+            }
+          }
+        });
       }
     });
   }
