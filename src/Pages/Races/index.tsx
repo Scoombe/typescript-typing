@@ -1,7 +1,7 @@
 import { format } from 'date-fns';
 import * as React from 'react';
 import * as ReactRouter from 'react-router-dom';
-import { Button, Grid, Header, Icon, List } from 'semantic-ui-react';
+import { Button, Grid, Header, Icon, List, Pagination, PaginationProps } from 'semantic-ui-react';
 import TypingHeader from '../../Components/TypingHeader';
 import { IRaceObj, IRaceScoreObj } from '../../Core/definitions';
 import { createRaceStar, getRace } from '../../Core/firebase-functions';
@@ -9,6 +9,7 @@ import { sortObj } from '../../Core/sort-functions';
 import Race from './Components/Race';
 
 interface IState {
+  page: number;
   race: IRaceObj;
   raceId: string;
   showRace: boolean;
@@ -20,12 +21,14 @@ class Races extends React.Component <ReactRouter.RouteComponentProps, IState> {
     this.goBack = this.goBack.bind(this);
     this.goHome = this.goHome.bind(this);
     this.loggedIn = this.loggedIn.bind(this);
+    this.onPageChange = this.onPageChange.bind(this);
     this.raceCallback = this.raceCallback.bind(this);
     this.showTest = this.showTest.bind(this);
     this.sortedUserScoreElements = this.sortedUserScoreElements.bind(this);
     this.starRace = this.starRace.bind(this);
     const raceId =  new URLSearchParams(props.location.search).get('race');
     this.state = {
+      page: 1,
       race: {
         createdOn: 0,
         key: '',
@@ -42,7 +45,7 @@ class Races extends React.Component <ReactRouter.RouteComponentProps, IState> {
     };
   }
   public render() {
-    const { race, raceId, showRace } = this.state;
+    const { page, race, raceId, showRace } = this.state;
     return(
       <Grid>
         <Grid.Row>
@@ -84,6 +87,12 @@ class Races extends React.Component <ReactRouter.RouteComponentProps, IState> {
                <List size="large" celled={true}>
                 {this.sortedUserScoreElements()}
                 </List>
+                {Object.keys(race.scores).length > 5 &&
+                <Pagination
+                  totalPages={Math.ceil(Object.keys(race.scores).length / 5)}
+                  activePage={page}
+                  onPageChange={this.onPageChange}
+                />}
               </Grid.Column>
             </Grid.Row>
           </React.Fragment>
@@ -119,8 +128,15 @@ class Races extends React.Component <ReactRouter.RouteComponentProps, IState> {
     this.props.history.push('/');
   }
 
+  private onPageChange(event: React.MouseEvent, data: PaginationProps) {
+    if (data.activePage) {
+      this.setState({ page: +data.activePage });
+    }
+  }
+
   private sortedUserScoreElements(): JSX.Element[] {
     const { scores } = this.state.race;
+    const { page } = this.state;
     if (typeof(scores) === 'undefined' || Object.keys(scores).length === 0) {
       return ([(
         <List.Content key="empty">
@@ -128,7 +144,7 @@ class Races extends React.Component <ReactRouter.RouteComponentProps, IState> {
         </List.Content>
       )]);
     }
-    const sortedScores: IRaceScoreObj[] =  Object.keys(scores).map((key: string) => {
+    let sortedScores: IRaceScoreObj[] =  Object.keys(scores).map((key: string) => {
       const score: IRaceScoreObj = scores[key];
       score.key = key;
       return score;
@@ -136,6 +152,7 @@ class Races extends React.Component <ReactRouter.RouteComponentProps, IState> {
     sortedScores.sort(sortObj('WPM'));
     const sortedScoreElements: JSX.Element[] = [];
     let firstScore = true;
+    sortedScores = sortedScores.slice(page * 5 - 5, page * 5);
     for (const score of sortedScores) {
       sortedScoreElements.push(
         this.returnScoreListItem(score, firstScore),
@@ -146,10 +163,11 @@ class Races extends React.Component <ReactRouter.RouteComponentProps, IState> {
   }
 
   private returnScoreListItem(score: IRaceScoreObj, first: boolean): JSX.Element {
+    const { page } = this.state;
     return(
       <List.Item key={score.key}>
       <List.Content>
-       {first && <Icon name="trophy" color="yellow" />}
+       {(first && page === 1) && <Icon name="trophy" color="yellow" />}
         WPM: {score.WPM}  <br />
         Average WPM: {score.averageWPM} <br />
         User Name: {score.userName} <br />
